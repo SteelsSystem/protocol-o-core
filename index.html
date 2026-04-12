@@ -84,63 +84,50 @@
 
         /* =============================================
            SUBLAYER GATE — stealth key management
-           Accessed via nav ◈ trigger or Ctrl+G
+           Surface: nav ◈ trigger or Ctrl+G
            Key lives ONLY in volatile JS memory.
            Never written to DOM, localStorage, or URL.
            ============================================= */
         #sublayer-gate {
-            position: fixed;
-            inset: 0;
-            z-index: 10000;
+            position: fixed; inset: 0; z-index: 10000;
             background: rgba(2,6,23,0.96);
             backdrop-filter: blur(24px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
+            display: none; align-items: center;
+            justify-content: center; flex-direction: column;
         }
         #sublayer-gate.open { display: flex; }
         #sublayer-gate .gate-inner {
             width: min(420px, 90vw);
             background: rgba(15,23,42,0.9);
             border: 1px solid rgba(37,99,235,0.3);
-            border-radius: 20px;
-            padding: var(--space-8);
+            border-radius: 20px; padding: var(--space-8);
             position: relative;
         }
         #sublayer-gate .gate-close {
             position: absolute; top: 16px; right: 16px;
             background: none; border: none; cursor: pointer;
-            color: rgba(255,255,255,0.3);
-            font-size: 18px;
+            color: rgba(255,255,255,0.3); font-size: 18px;
             transition: color 0.2s;
         }
         #sublayer-gate .gate-close:hover { color: rgba(255,255,255,0.7); }
 
-        /* Key input — masked, no autofill hints */
+        /* Key input — masked, no autofill */
         #gate-key-input {
             background: rgba(0,0,0,0.5);
             border: 1px solid rgba(255,255,255,0.08);
             border-radius: var(--radius-md);
-            padding: 10px 14px;
-            color: #f8fafc;
-            font-family: var(--font-mono);
-            font-size: var(--text-xs);
-            width: 100%;
-            letter-spacing: 0.15em;
-            outline: none;
-            transition: border-color 0.2s;
+            padding: 10px 14px; color: #f8fafc;
+            font-family: var(--font-mono); font-size: var(--text-xs);
+            width: 100%; letter-spacing: 0.15em;
+            outline: none; transition: border-color 0.2s;
         }
         #gate-key-input:focus { border-color: rgba(37,99,235,0.5); }
 
-        /* STATUS ORB — minimal 6px dot in nav only */
+        /* STATUS ORB — 6px dot, nav only */
         #gate-status-orb {
-            width: 6px; height: 6px;
-            border-radius: 50%;
-            background: #ef4444;
-            display: inline-block;
-            margin-right: 6px;
-            transition: background 0.4s;
+            width: 6px; height: 6px; border-radius: 50%;
+            background: #ef4444; display: inline-block;
+            margin-right: 6px; transition: background 0.4s;
         }
         #gate-status-orb.active { background: #10b981; box-shadow: 0 0 6px #10b98166; }
 
@@ -148,135 +135,93 @@
         .section-num { font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: 0.15em; opacity: 0.7; }
 
         /* =============================================
-           CERTIFICATE SUBLAYER
-           Rendered as visual card modal.
-           Lives entirely in volatile DOM — no persistence.
-           Dismiss destroys the element.
+           CERTIFICATE SUBLAYER — volatile DOM, no persist
            ============================================= */
         #cert-sublayer {
-            position: fixed;
-            inset: 0;
-            z-index: 10001;
+            position: fixed; inset: 0; z-index: 10001;
             background: rgba(2,6,23,0.97);
             backdrop-filter: blur(32px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
+            display: none; align-items: center;
+            justify-content: center; padding: 24px;
         }
         #cert-sublayer.open { display: flex; }
         #cert-card {
             width: min(600px, 96vw);
             background: rgba(8,14,36,0.98);
             border: 1px solid rgba(37,99,235,0.25);
-            border-radius: 24px;
-            padding: 40px;
+            border-radius: 24px; padding: 40px;
             position: relative;
             box-shadow: 0 0 80px rgba(37,99,235,0.08), 0 0 0 1px rgba(255,255,255,0.03);
         }
         #cert-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
+            content: ''; position: absolute; inset: 0;
             border-radius: 24px;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 3px,
-                rgba(37,99,235,0.015) 3px,
-                rgba(37,99,235,0.015) 4px
-            );
+            background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(37,99,235,0.015) 3px, rgba(37,99,235,0.015) 4px);
             pointer-events: none;
         }
         .cert-close {
             position: absolute; top: 16px; right: 16px;
             background: none; border: none; cursor: pointer;
-            color: rgba(255,255,255,0.2);
-            font-size: 18px;
-            transition: color 0.2s;
-            z-index: 2;
+            color: rgba(255,255,255,0.2); font-size: 18px;
+            transition: color 0.2s; z-index: 2;
         }
         .cert-close:hover { color: rgba(255,255,255,0.6); }
         #cert-loading-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
-            padding: 40px 0;
+            display: flex; flex-direction: column;
+            align-items: center; gap: 16px; padding: 40px 0;
         }
         #cert-content { display: none; }
         .cert-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            gap: 16px;
+            display: flex; justify-content: space-between;
+            align-items: flex-start; padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04); gap: 16px;
         }
         .cert-row:last-child { border-bottom: none; }
         .cert-label {
-            font-family: var(--font-mono);
-            font-size: 9px;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: rgba(255,255,255,0.25);
-            flex-shrink: 0;
-            width: 120px;
+            font-family: var(--font-mono); font-size: 9px;
+            letter-spacing: 0.2em; text-transform: uppercase;
+            color: rgba(255,255,255,0.25); flex-shrink: 0; width: 120px;
         }
         .cert-value {
-            font-family: var(--font-mono);
-            font-size: 11px;
-            color: rgba(255,255,255,0.75);
-            text-align: right;
-            word-break: break-all;
+            font-family: var(--font-mono); font-size: 11px;
+            color: rgba(255,255,255,0.75); text-align: right; word-break: break-all;
         }
         .cert-seal-text {
-            font-family: var(--font-mono);
-            font-size: 11px;
-            line-height: 1.7;
-            color: rgba(148,163,184,0.8);
-            padding: 16px 0;
+            font-family: var(--font-mono); font-size: 11px; line-height: 1.7;
+            color: rgba(148,163,184,0.8); padding: 16px 0;
             border-top: 1px solid rgba(37,99,235,0.15);
             border-bottom: 1px solid rgba(37,99,235,0.15);
-            margin: 16px 0;
-            font-style: italic;
+            margin: 16px 0; font-style: italic;
         }
         .cert-engine-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            display: inline-flex; align-items: center; gap: 6px;
             background: rgba(37,99,235,0.1);
             border: 1px solid rgba(37,99,235,0.2);
-            border-radius: 999px;
-            padding: 3px 10px;
-            font-family: var(--font-mono);
-            font-size: 9px;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
+            border-radius: 999px; padding: 3px 10px;
+            font-family: var(--font-mono); font-size: 9px;
+            letter-spacing: 0.15em; text-transform: uppercase;
             color: rgba(96,165,250,0.8);
         }
         .cert-engine-dot {
-            width: 5px; height: 5px;
-            border-radius: 50%;
-            background: #60a5fa;
-            box-shadow: 0 0 6px #60a5fa88;
+            width: 5px; height: 5px; border-radius: 50%;
+            background: #60a5fa; box-shadow: 0 0 6px #60a5fa88;
         }
 
-        /* ENGINE LABEL — small badge shown in function outputs */
+        /* ENGINE BADGE — small label in function outputs */
         .engine-badge {
             display: inline-block;
-            font-family: var(--font-mono);
-            font-size: 9px;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            padding: 1px 7px;
-            border-radius: 999px;
+            font-family: var(--font-mono); font-size: 9px;
+            letter-spacing: 0.15em; text-transform: uppercase;
+            padding: 1px 7px; border-radius: 999px;
             border: 1px solid rgba(37,99,235,0.25);
             background: rgba(37,99,235,0.08);
-            color: rgba(96,165,250,0.6);
-            margin-bottom: 6px;
+            color: rgba(96,165,250,0.6); margin-bottom: 6px;
         }
-        .engine-badge.gemini { border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.08); color: rgba(52,211,153,0.7); }
+        .engine-badge.gemini {
+            border-color: rgba(16,185,129,0.3);
+            background: rgba(16,185,129,0.08);
+            color: rgba(52,211,153,0.7);
+        }
 
         /* PROBE OPTION GROUP labels */
         #probe-target optgroup { color: rgba(148,163,184,0.5); font-size: 10px; }
@@ -286,12 +231,11 @@
 <div class="scanline"></div>
 
 <!-- =============================================
-     SUBLAYER GATE — fully hidden API credential layer
-     Surface: ◈ nav button or Ctrl+G keyboard shortcut
+     SUBLAYER GATE
      ============================================= -->
 <div id="sublayer-gate" role="dialog" aria-modal="true" aria-label="O-Gate Sublayer">
     <div class="gate-inner">
-        <button class="gate-close" onclick="closeSublayer()" aria-label="Close gate">✕</button>
+        <button class="gate-close" id="gate-close-btn" aria-label="Close gate">✕</button>
         <div class="flex items-center gap-3 mb-6">
             <div class="w-8 h-8 rounded-full border border-blue-500/40 flex items-center justify-center">
                 <div class="w-3 h-3 rounded-full bg-blue-500 gate-pulse"></div>
@@ -301,33 +245,20 @@
                 <p class="mono text-[9px] text-slate-600 mt-0.5">Gemini key → premium engine. Optional — all functions run keyless via Pollinations.</p>
             </div>
         </div>
-
         <label class="mono text-[10px] uppercase tracking-widest text-slate-500 mb-2 block">Gemini API Key (optional)</label>
         <input
             type="password"
             id="gate-key-input"
             placeholder="AIza..."
-            autocomplete="off"
-            autocorrect="off"
-            spellcheck="false"
-            data-lpignore="true"
-            onkeydown="if(event.key==='Enter') commitKey()"
+            autocomplete="off" autocorrect="off" spellcheck="false" data-lpignore="true"
         >
         <div class="flex gap-2 mt-3">
-            <button
-                onclick="commitKey()"
-                class="flex-1 bg-blue-600/20 hover:bg-blue-600/40 border border-blue-500/40 text-blue-300 rounded-lg py-2 text-[10px] mono font-bold uppercase tracking-widest transition-all"
-            >Commit Key</button>
-            <button
-                onclick="purgeKey()"
-                class="bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400/70 hover:text-red-400 rounded-lg px-4 py-2 text-[10px] mono transition-all"
-            >Purge</button>
+            <button id="gate-commit-btn" class="flex-1 bg-blue-600/20 hover:bg-blue-600/40 border border-blue-500/40 text-blue-300 rounded-lg py-2 text-[10px] mono font-bold uppercase tracking-widest transition-all">Commit Key</button>
+            <button id="gate-purge-btn" class="bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400/70 hover:text-red-400 rounded-lg px-4 py-2 text-[10px] mono transition-all">Purge</button>
         </div>
-
         <div id="gate-feedback" class="mt-4 hidden">
             <p id="gate-feedback-text" class="mono text-[10px] text-center tracking-widest"></p>
         </div>
-
         <div class="mt-6 pt-4 border-t border-white/5">
             <p class="mono text-[9px] text-slate-700 text-center">Key lives in JS memory only — never serialized, never in DOM attributes.</p>
         </div>
@@ -336,24 +267,15 @@
 
 <!-- =============================================
      CERTIFICATE SUBLAYER
-     Rendered on demand. AI statement injected via
-     Pollinations.AI (free, keyless engine).
-     Gemini fallback if key present in O-Gate.
-     Dismiss destroys volatile DOM node.
      ============================================= -->
 <div id="cert-sublayer" role="dialog" aria-modal="true" aria-label="Protocol O Integrity Certificate">
     <div id="cert-card">
-        <button class="cert-close" onclick="closeCertificate()" aria-label="Close certificate">✕</button>
-
-        <!-- Loading state -->
+        <button class="cert-close" id="cert-close-btn" aria-label="Close certificate">✕</button>
         <div id="cert-loading-state">
             <div class="ai-loading" style="border-top-color:#2563eb;width:32px;height:32px;border-width:3px;"></div>
             <p class="mono text-[10px] uppercase tracking-[0.25em] text-slate-600">Generating integrity proof...</p>
         </div>
-
-        <!-- Certificate content — revealed after AI returns -->
         <div id="cert-content">
-            <!-- Header -->
             <div class="flex items-center justify-between mb-6">
                 <div>
                     <p class="mono text-[9px] uppercase tracking-[0.3em] text-blue-500/60 mb-1">Protocol O</p>
@@ -367,16 +289,8 @@
                     <span id="cert-status-badge" class="mono text-[9px] uppercase tracking-widest text-emerald-400/70">ALIGNED · VERIFIED · ACTIVE</span>
                 </div>
             </div>
-
-            <!-- Metadata rows -->
-            <div id="cert-meta-rows">
-                <!-- injected by JS -->
-            </div>
-
-            <!-- AI-generated seal statement -->
+            <div id="cert-meta-rows"></div>
             <p id="cert-seal-text" class="cert-seal-text"></p>
-
-            <!-- Confidence bar -->
             <div class="flex items-center gap-3 mt-2 mb-6">
                 <span class="mono text-[9px] uppercase tracking-widest text-slate-600" style="width:120px;flex-shrink:0;">Confidence Flow</span>
                 <div class="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
@@ -384,17 +298,9 @@
                 </div>
                 <span id="cert-confidence-val" class="mono text-[10px] text-blue-400">0%</span>
             </div>
-
-            <!-- Actions -->
             <div class="flex gap-3 mt-2">
-                <button
-                    onclick="downloadCertificate()"
-                    class="flex-1 bg-blue-600/15 hover:bg-blue-600/30 border border-blue-500/30 text-blue-300 rounded-xl py-3 text-[10px] mono font-bold uppercase tracking-widest transition-all"
-                >↓ Download .txt</button>
-                <button
-                    onclick="closeCertificate()"
-                    class="bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 rounded-xl px-5 py-3 text-[10px] mono transition-all"
-                >Dismiss</button>
+                <button id="cert-download-btn" class="flex-1 bg-blue-600/15 hover:bg-blue-600/30 border border-blue-500/30 text-blue-300 rounded-xl py-3 text-[10px] mono font-bold uppercase tracking-widest transition-all">↓ Download .txt</button>
+                <button id="cert-dismiss-btn" class="bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 rounded-xl px-5 py-3 text-[10px] mono transition-all">Dismiss</button>
             </div>
         </div>
     </div>
@@ -411,9 +317,8 @@
             <span class="text-[10px] mono text-purple-400 uppercase font-bold tracking-widest flex-shrink-0">Aktivní Uzel:</span>
             <div id="lang-selector-container" class="flex gap-2 flex-nowrap"></div>
         </div>
-        <!-- Sublayer trigger: minimal orb, no label that reveals function -->
         <button
-            onclick="openSublayer()"
+            id="nav-gate-btn"
             title="O-Gate Sublayer (Ctrl+G)"
             aria-label="Open O-Gate credential sublayer"
             class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/5 hover:border-blue-500/30 transition-all"
@@ -421,7 +326,7 @@
             <span id="gate-status-orb"></span>
             <span class="mono text-[9px] uppercase tracking-widest text-slate-600 hover:text-slate-400 transition-colors">◈</span>
         </button>
-        <button onclick="recalibrate()" class="px-4 py-1 text-[10px] border border-blue-500/50 rounded-full hover:bg-blue-500/20 transition-all uppercase font-bold tracking-widest mono">Rekalibrace</button>
+        <button id="nav-recalibrate-btn" class="px-4 py-1 text-[10px] border border-blue-500/50 rounded-full hover:bg-blue-500/20 transition-all uppercase font-bold tracking-widest mono">Rekalibrace</button>
     </div>
 </nav>
 
@@ -436,7 +341,7 @@
         <div class="glass p-1 rounded-2xl max-w-2xl mx-auto shadow-2xl">
             <div class="flex gap-2">
                 <input type="text" id="ai-query" class="bg-transparent flex-1 px-6 py-4 focus:outline-none text-sm mono fade-transition" placeholder="...">
-                <button onclick="askInnerMind()" class="bg-blue-600 hover:bg-blue-700 px-8 rounded-xl font-bold text-xs uppercase tracking-widest transition-all"><span id="probe-btn-text">Sonda ✨</span></button>
+                <button id="probe-btn" class="bg-blue-600 hover:bg-blue-700 px-8 rounded-xl font-bold text-xs uppercase tracking-widest transition-all"><span id="probe-btn-text">Sonda ✨</span></button>
             </div>
         </div>
         <div id="ai-response-container" class="hidden mt-6 glass p-6 rounded-2xl text-left max-w-2xl mx-auto border-blue-500/30">
@@ -460,8 +365,8 @@
             <p class="mono text-[9px] text-slate-700 mb-3 uppercase tracking-widest">Note: Visual audit requires Gemini key (multimodal). Open ◈ to unlock.</p>
             <div class="flex flex-col gap-4">
                 <div class="flex items-center gap-4">
-                    <input type="file" id="visual-audit-input" accept="image/*" class="hidden" onchange="performVisualAudit(this)">
-                    <button onclick="document.getElementById('visual-audit-input').click()" id="c1-btn" class="bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 border border-emerald-600/50 px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest mono transition-all">Vybrat Dokument</button>
+                    <input type="file" id="visual-audit-input" accept="image/*" class="hidden">
+                    <button id="c1-btn" class="bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 border border-emerald-600/50 px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest mono transition-all">Vybrat Dokument</button>
                     <div id="visual-audit-loading" class="hidden"><div class="ai-loading border-top-teal"></div></div>
                 </div>
                 <div id="visual-audit-result" class="hidden glass p-4 rounded-xl text-xs text-slate-300 mono">...</div>
@@ -475,11 +380,11 @@
                 O-Gate Status
             </h2>
             <div class="flex flex-col gap-2">
-                <button onclick="triggerVoiceBriefing()" class="w-full bg-white/5 hover:bg-white/10 py-4 rounded-xl border border-white/10 transition-all flex items-center justify-center gap-3">
+                <button id="voice-btn" class="w-full bg-white/5 hover:bg-white/10 py-4 rounded-xl border border-white/10 transition-all flex items-center justify-center gap-3">
                     <span id="tts-icon">🔊</span>
                     <span id="c2-voice" class="text-[10px] font-bold uppercase tracking-widest mono">Hlasový Brífink</span>
                 </button>
-                <button onclick="generateCertificate()" class="w-full bg-blue-600/10 hover:bg-blue-600/20 py-4 rounded-xl border border-blue-600/30 transition-all flex items-center justify-center gap-3">
+                <button id="cert-gen-btn" class="w-full bg-blue-600/10 hover:bg-blue-600/20 py-4 rounded-xl border border-blue-600/30 transition-all flex items-center justify-center gap-3">
                     <span>🎨</span>
                     <span id="c2-gen" class="text-[10px] font-bold uppercase tracking-widest mono">Generovat Důkaz</span>
                 </button>
@@ -493,7 +398,7 @@
                 <span id="qa-title-text">Sémantický &amp; Codebase Analyzátor</span>
             </h2>
             <textarea id="qa-input" rows="4" class="bg-black/40 border border-white/10 rounded-xl px-6 py-4 w-full text-sm focus:outline-none focus:border-purple-500 mono mb-4" placeholder="Vložte kód nebo dotaz..."></textarea>
-            <button onclick="processQA()" class="bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 border border-purple-600/50 px-8 py-4 rounded-xl font-bold text-xs uppercase tracking-widest w-full md:w-auto mono transition-all"><span id="qa-btn-text">Analyzovat</span></button>
+            <button id="qa-btn" class="bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 border border-purple-600/50 px-8 py-4 rounded-xl font-bold text-xs uppercase tracking-widest w-full md:w-auto mono transition-all"><span id="qa-btn-text">Analyzovat</span></button>
             <div id="qa-result-container" class="hidden mt-6 p-6 rounded-2xl border border-white/5 bg-white/5">
                 <div class="flex items-center gap-3 border-b border-white/5 pb-4 mb-4">
                     <span class="text-[10px] mono uppercase text-slate-500 tracking-widest">Sémantický Vektor:</span>
@@ -514,7 +419,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="flex flex-col gap-4">
                     <input type="text" id="multi-lang-input" class="bg-black/40 border border-white/10 rounded-xl px-6 py-4 text-sm focus:outline-none focus:border-teal-500 mono" placeholder="...">
-                    <button onclick="runMultiVectTranslation()" class="bg-teal-600/20 hover:bg-teal-600/40 text-teal-300 border border-teal-600/50 px-8 py-4 rounded-xl font-bold text-xs uppercase tracking-widest mono transition-all"><span id="multi-lang-btn-text">Iniciovat Projekci</span></button>
+                    <button id="multi-lang-btn" class="bg-teal-600/20 hover:bg-teal-600/40 text-teal-300 border border-teal-600/50 px-8 py-4 rounded-xl font-bold text-xs uppercase tracking-widest mono transition-all"><span id="multi-lang-btn-text">Iniciovat Projekci</span></button>
                 </div>
                 <div class="bg-black/40 border border-white/10 rounded-xl p-4 flex flex-col gap-2 min-h-[150px]" id="multi-lang-results">
                     <span id="loc-wait" class="text-[10px] mono uppercase text-slate-600 text-center mt-10 tracking-widest">Uzly v pohotovosti</span>
@@ -532,7 +437,7 @@
             <div class="flex flex-col gap-3">
                 <textarea id="scanner-url-payload" rows="3" class="bg-black/40 border border-white/10 rounded-xl px-4 py-3 w-full text-xs focus:outline-none focus:border-blue-500 mono" placeholder="Vložte dotaz (bude odveslán jako probe)..."></textarea>
                 <input type="text" id="scanner-pattern" class="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-yellow-500 mono" placeholder="Hledaný string / regex (např. candidates|error|model)">
-                <button onclick="runBodyScanner()" class="bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 border border-blue-500/40 px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest mono transition-all">🔍 Spustit Skánování</button>
+                <button id="scanner-btn" class="bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 border border-blue-500/40 px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest mono transition-all">🔍 Spustit Skánování</button>
             </div>
             <div id="scanner-result" class="hidden mt-4 glass p-4 rounded-xl">
                 <div class="flex items-center gap-3 mb-3">
@@ -552,12 +457,6 @@
             </h2>
             <p class="text-slate-500 text-xs mono mb-6">C — Prob live API endpointové struktury</p>
             <div class="flex flex-col gap-3">
-                <!-- =============================================
-                     PROBE TARGET SELECT — sublayer options
-                     FREE group: keyless, always available.
-                     GEMINI group: key required (O-Gate).
-                     CUSTOM: arbitrary GET endpoint.
-                     ============================================= -->
                 <select id="probe-target" class="bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-xs mono focus:outline-none focus:border-purple-500 text-slate-300">
                     <optgroup label="── FREE · KEYLESS ──────────────">
                         <option value="pollinations-ping">Pollinations — text ping (free)</option>
@@ -574,7 +473,7 @@
                     </optgroup>
                 </select>
                 <input type="text" id="probe-custom-url" class="hidden bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs mono focus:outline-none focus:border-purple-500" placeholder="https://...">
-                <button onclick="runNetworkProbe()" class="bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 border border-purple-500/40 px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest mono transition-all">📶 Spustit Probe</button>
+                <button id="probe-run-btn" class="bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 border border-purple-500/40 px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest mono transition-all">📶 Spustit Probe</button>
             </div>
             <div id="probe-result" class="hidden mt-4 glass p-4 rounded-xl">
                 <div class="flex items-center gap-2 mb-2">
@@ -594,576 +493,580 @@
 </main>
 
 <script>
+(function () {
+    'use strict';
+
     // =============================================
     // O-GATE SECURITY MODEL
-    // _oGateKey lives ONLY in this JS variable.
-    // Never written to: DOM attributes, dataset,
+    // _key lives ONLY here — never touches DOM,
     // localStorage, sessionStorage, URL, or cookies.
-    // Access surface: sublayer modal only (◈ / Ctrl+G)
-    //
-    // ENGINE PRIORITY (all functions):
-    //   1. Gemini via O-Gate  — if _oGateKey present
-    //   2. Pollinations.AI    — free, keyless, always available
-    // No function hard-blocks without a key.
     // =============================================
-    let _oGateKey = '';
+    let _key = '';
     const TEXT_MODEL = 'gemini-2.0-flash';
 
-    // --- SUBLAYER CONTROLS ---
-    function openSublayer() {
-        document.getElementById('sublayer-gate').classList.add('open');
-        setTimeout(() => document.getElementById('gate-key-input').focus(), 80);
-    }
-    function closeSublayer() {
-        document.getElementById('sublayer-gate').classList.remove('open');
-        document.getElementById('gate-key-input').value = '';
-        hideFeedback();
-    }
-    function commitKey() {
-        const val = document.getElementById('gate-key-input').value.trim();
-        if (!val) { showFeedback('No key provided.', 'text-red-400'); return; }
-        _oGateKey = val;
-        document.getElementById('gate-key-input').value = '';
-        updateOrbStatus();
-        showFeedback('Key committed — Gemini engine active.', 'text-emerald-400');
-        setTimeout(closeSublayer, 900);
-    }
-    function purgeKey() {
-        _oGateKey = '';
-        document.getElementById('gate-key-input').value = '';
-        updateOrbStatus();
-        showFeedback('Key purged. Falling back to Pollinations.', 'text-orange-400');
-    }
-    function updateOrbStatus() {
-        const orb = document.getElementById('gate-status-orb');
-        if (_oGateKey) { orb.classList.add('active'); }
-        else { orb.classList.remove('active'); }
-    }
-    function showFeedback(msg, cls) {
-        const fb = document.getElementById('gate-feedback');
-        const txt = document.getElementById('gate-feedback-text');
-        fb.classList.remove('hidden');
-        txt.className = 'mono text-[10px] text-center tracking-widest ' + cls;
-        txt.innerText = msg;
-    }
-    function hideFeedback() {
-        document.getElementById('gate-feedback').classList.add('hidden');
-    }
-
-    // Keyboard shortcuts
-    document.addEventListener('keydown', e => {
-        if (e.ctrlKey && e.key === 'g') { e.preventDefault(); openSublayer(); }
-        if (e.key === 'Escape') {
-            if (document.getElementById('sublayer-gate').classList.contains('open')) closeSublayer();
-            if (document.getElementById('cert-sublayer').classList.contains('open')) closeCertificate();
+    // =============================================
+    // SUBLAYER: O-GATE
+    // =============================================
+    const _gate = {
+        open() {
+            document.getElementById('sublayer-gate').classList.add('open');
+            setTimeout(() => document.getElementById('gate-key-input').focus(), 80);
+        },
+        close() {
+            document.getElementById('sublayer-gate').classList.remove('open');
+            document.getElementById('gate-key-input').value = '';
+            _gate._hideFeedback();
+        },
+        commit() {
+            const val = document.getElementById('gate-key-input').value.trim();
+            if (!val) { _gate._feedback('No key provided.', 'text-red-400'); return; }
+            _key = val;
+            document.getElementById('gate-key-input').value = '';
+            _gate._syncOrb();
+            _gate._feedback('Key committed — Gemini engine active.', 'text-emerald-400');
+            setTimeout(_gate.close, 900);
+        },
+        purge() {
+            _key = '';
+            document.getElementById('gate-key-input').value = '';
+            _gate._syncOrb();
+            _gate._feedback('Key purged. Falling back to Pollinations.', 'text-orange-400');
+        },
+        _syncOrb() {
+            const orb = document.getElementById('gate-status-orb');
+            orb.classList.toggle('active', !!_key);
+        },
+        _feedback(msg, cls) {
+            const fb = document.getElementById('gate-feedback');
+            const txt = document.getElementById('gate-feedback-text');
+            fb.classList.remove('hidden');
+            txt.className = 'mono text-[10px] text-center tracking-widest ' + cls;
+            txt.innerText = msg;
+        },
+        _hideFeedback() {
+            document.getElementById('gate-feedback').classList.add('hidden');
         }
-    });
+    };
+
+    // =============================================
+    // SUBLAYER: CERTIFICATE
+    // =============================================
+    const _cert = {
+        _data: null,
+
+        async generate() {
+            const sublayer = document.getElementById('cert-sublayer');
+            document.getElementById('cert-loading-state').style.display = 'flex';
+            document.getElementById('cert-content').style.display = 'none';
+            sublayer.classList.add('open');
+
+            const ts = new Date().toISOString();
+            const lang = _locale.active.toUpperCase();
+            const hash = await _util.shortHash(ts + lang + Math.random());
+            const scores = { Ethics: 95, Science: 80, Legal: 85, Impact: 90 };
+            const confidence = Math.round((scores.Ethics + scores.Science + scores.Legal + scores.Impact) / 4);
+
+            const prompt = `Generate a Protocol O Integrity Certificate seal statement. Language: ${lang}.\nTimestamp: ${ts}. Hash: ${hash}. Confidence: ${confidence}%.\nThe statement must be 2-3 sentences, cryptographic in tone, referencing alignment and verification.\nDo not include any headings, labels, or metadata — only the seal body text.`;
+
+            let sealText = '', engineLabel = 'Pollinations.AI · FREE';
+            try {
+                const result = await _engine.smart(prompt, 'You are Protocol O — a cryptographic integrity engine. Be precise, dense, poetic-technical.');
+                sealText = result.text;
+                engineLabel = result.engine;
+            } catch (_e) {
+                sealText = `Node ${lang} integrity verified at ${ts}. Hash ${hash} confirmed aligned. Protocol O seal active — no anomaly detected.`;
+                engineLabel = 'Static Fallback';
+            }
+
+            _cert._data = { ts, lang, hash, confidence, scores, sealText, engineLabel };
+            document.getElementById('cert-engine-label').innerText = engineLabel;
+
+            const metaRows = [
+                ['ISSUED', ts], ['LANG', lang], ['HASH', hash],
+                ['STATUS', 'ALIGNED · VERIFIED · ACTIVE'],
+                ['FLOW', `${confidence}% CONFIDENCE`], ['ENGINE', engineLabel]
+            ];
+            document.getElementById('cert-meta-rows').innerHTML = metaRows.map(([label, value]) =>
+                `<div class="cert-row"><span class="cert-label">${label}</span><span class="cert-value">${value}</span></div>`
+            ).join('');
+            document.getElementById('cert-seal-text').innerText = sealText;
+
+            const bar = document.getElementById('cert-confidence-bar');
+            const val = document.getElementById('cert-confidence-val');
+            bar.style.width = '0%'; val.innerText = '0%';
+            setTimeout(() => {
+                bar.style.transition = 'width 1.2s cubic-bezier(0.16,1,0.3,1)';
+                bar.style.width = confidence + '%';
+                val.innerText = confidence + '%';
+            }, 120);
+
+            document.getElementById('cert-loading-state').style.display = 'none';
+            document.getElementById('cert-content').style.display = 'block';
+        },
+        close() {
+            document.getElementById('cert-sublayer').classList.remove('open');
+            _cert._data = null;
+        },
+        download() {
+            if (!_cert._data) return;
+            const { ts, lang, hash, confidence, scores, sealText, engineLabel } = _cert._data;
+            const lines = [
+                '┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓',
+                '┃     PROTOCOL O — INTEGRITY CERTIFICATE     ┃',
+                '┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫',
+                `┃  ISSUED  : ${ts.padEnd(29)}┃`,
+                `┃  LANG    : ${lang.padEnd(29)}┃`,
+                `┃  HASH    : ${hash.padEnd(29)}┃`,
+                '┃  STATUS  : ALIGNED · VERIFIED · ACTIVE      ┃',
+                `┃  FLOW    : ${(confidence + '% CONFIDENCE').padEnd(29)}┃`,
+                `┃  ENGINE  : ${engineLabel.padEnd(29)}┃`,
+                '┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫',
+                '┃  SEAL STATEMENT                            ┃',
+                '┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛',
+                '', sealText, '',
+                '━'.repeat(44),
+                `Ethics: ${scores.Ethics} | Science: ${scores.Science} | Legal: ${scores.Legal} | Impact: ${scores.Impact}`,
+                '━'.repeat(44)
+            ];
+            const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `protocol-o-cert-${hash}-${Date.now()}.txt`;
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+        }
+    };
 
     // =============================================
     // ENGINE LAYER
-    //
-    // apiRequest()          — Gemini only, throws if no key
-    // pollinationsRequest() — free, keyless
-    // smartRequest()        — tries Gemini first, falls to Pollinations
-    //                         returns { text, engine }
+    // apiRequest    — Gemini, throws if no key
+    // pollinationsRequest — free, keyless
+    // smart         — Gemini first → Pollinations fallback
+    //                 returns { text, engine }
     // =============================================
-
-    async function apiRequest(payload) {
-        if (!_oGateKey) throw new Error('No Gemini key — O-Gate not committed.');
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${TEXT_MODEL}:generateContent?key=${_oGateKey}`;
-        const res = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        if (!res.ok) throw new Error(`Gemini HTTP ${res.status}`);
-        return await res.json();
-    }
-
-    async function pollinationsRequest(prompt, systemPrompt) {
-        const res = await fetch('https://text.pollinations.ai/openai', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                model: 'openai',
-                messages: [
-                    { role: 'system', content: systemPrompt || 'You are Protocol O — a precise, poetic-technical AI engine.' },
-                    { role: 'user', content: prompt }
-                ],
-                temperature: 0.7,
-                max_tokens: 512
-            })
-        });
-        if (!res.ok) throw new Error(`Pollinations HTTP ${res.status}`);
-        const data = await res.json();
-        return data.choices[0].message.content.trim();
-    }
-
-    // smartRequest: Gemini if key present, else Pollinations
-    // Returns { text: string, engine: string }
-    async function smartRequest(prompt, systemPrompt) {
-        if (_oGateKey) {
-            try {
-                const payload = {
-                    contents: [{ parts: [{ text: prompt }] }]
-                };
-                if (systemPrompt) {
-                    payload.systemInstruction = { parts: [{ text: systemPrompt }] };
-                }
-                const res = await apiRequest(payload);
-                return {
-                    text: res.candidates[0].content.parts[0].text.trim(),
-                    engine: 'Gemini · O-Gate'
-                };
-            } catch (e) {
-                console.warn('Gemini failed, falling back to Pollinations:', e.message);
-            }
-        }
-        const text = await pollinationsRequest(prompt, systemPrompt);
-        return { text, engine: 'Pollinations.AI · FREE' };
-    }
-
-    // Hash helper
-    async function shortHash(input) {
-        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input));
-        return Array.from(new Uint8Array(buf)).slice(0, 4).map(b => b.toString(16).padStart(2,'0')).join('').toUpperCase();
-    }
-
-    // =============================================
-    // GENERATE CERTIFICATE
-    // =============================================
-    let _certData = null;
-
-    async function generateCertificate() {
-        const sublayer = document.getElementById('cert-sublayer');
-        document.getElementById('cert-loading-state').style.display = 'flex';
-        document.getElementById('cert-content').style.display = 'none';
-        sublayer.classList.add('open');
-
-        const ts = new Date().toISOString();
-        const lang = activeAppLang.toUpperCase();
-        const hash = await shortHash(ts + lang + Math.random());
-        const scores = { Ethics: 95, Science: 80, Legal: 85, Impact: 90 };
-        const confidence = Math.round((scores.Ethics + scores.Science + scores.Legal + scores.Impact) / 4);
-
-        const prompt = `Generate a Protocol O Integrity Certificate seal statement. Language: ${lang}.\nTimestamp: ${ts}. Hash: ${hash}. Confidence: ${confidence}%.\nThe statement must be 2-3 sentences, cryptographic in tone, referencing alignment and verification.\nDo not include any headings, labels, or metadata — only the seal body text.`;
-
-        let sealText = '';
-        let engineLabel = 'Pollinations.AI · FREE';
-
-        try {
-            const result = await smartRequest(prompt, 'You are Protocol O — a cryptographic integrity engine. Be precise, dense, poetic-technical.');
-            sealText = result.text;
-            engineLabel = result.engine;
-        } catch (e) {
-            sealText = `Node ${lang} integrity verified at ${ts}. Hash ${hash} confirmed aligned. Protocol O seal active — no anomaly detected.`;
-            engineLabel = 'Static Fallback';
-        }
-
-        _certData = { ts, lang, hash, confidence, scores, sealText, engineLabel };
-
-        document.getElementById('cert-engine-label').innerText = engineLabel;
-
-        const metaRows = [
-            ['ISSUED', ts],
-            ['LANG', lang],
-            ['HASH', hash],
-            ['STATUS', 'ALIGNED · VERIFIED · ACTIVE'],
-            ['FLOW', `${confidence}% CONFIDENCE`],
-            ['ENGINE', engineLabel]
-        ];
-
-        document.getElementById('cert-meta-rows').innerHTML = metaRows.map(([label, value]) =>
-            `<div class="cert-row"><span class="cert-label">${label}</span><span class="cert-value">${value}</span></div>`
-        ).join('');
-
-        document.getElementById('cert-seal-text').innerText = sealText;
-
-        const bar = document.getElementById('cert-confidence-bar');
-        const val = document.getElementById('cert-confidence-val');
-        bar.style.width = '0%'; val.innerText = '0%';
-        setTimeout(() => {
-            bar.style.transition = 'width 1.2s cubic-bezier(0.16,1,0.3,1)';
-            bar.style.width = confidence + '%';
-            val.innerText = confidence + '%';
-        }, 120);
-
-        document.getElementById('cert-loading-state').style.display = 'none';
-        document.getElementById('cert-content').style.display = 'block';
-    }
-
-    function closeCertificate() {
-        document.getElementById('cert-sublayer').classList.remove('open');
-        _certData = null;
-    }
-
-    function downloadCertificate() {
-        if (!_certData) return;
-        const { ts, lang, hash, confidence, scores, sealText, engineLabel } = _certData;
-        const lines = [
-            '┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓',
-            '┃     PROTOCOL O — INTEGRITY CERTIFICATE     ┃',
-            '┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫',
-            `┃  ISSUED  : ${ts.padEnd(29)}┃`,
-            `┃  LANG    : ${lang.padEnd(29)}┃`,
-            `┃  HASH    : ${hash.padEnd(29)}┃`,
-            '┃  STATUS  : ALIGNED · VERIFIED · ACTIVE      ┃',
-            `┃  FLOW    : ${(confidence + '% CONFIDENCE').padEnd(29)}┃`,
-            `┃  ENGINE  : ${engineLabel.padEnd(29)}┃`,
-            '┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫',
-            '┃  SEAL STATEMENT                            ┃',
-            '┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛',
-            '',
-            sealText,
-            '',
-            '━'.repeat(44),
-            `Ethics: ${scores.Ethics} | Science: ${scores.Science} | Legal: ${scores.Legal} | Impact: ${scores.Impact}`,
-            '━'.repeat(44)
-        ];
-        const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `protocol-o-cert-${hash}-${Date.now()}.txt`;
-        a.click();
-        setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-    }
-
-    // --- LOCALES ---
-    const appLocales = {
-        'cs': { id:'cs', flag:'🇨🇿', label:'CZ', navTitle:'Protocol O // Integrity Core', heroSub:'Protokol O / Vědomí Jádra', probePlh:'Sondování sémantické hloubky...', probeBtn:'Sonda ✨', c1Title:'Vizuální Audit Dokumentů', c1Desc:'Nahrajte snímek pro vizuální analýzu souladu.', c1Btn:'Vybrat Dokument', c2Voice:'Hlasový Brífink', c2Gen:'Generovat Důkaz', qaTitle:'Sémantický & Codebase Analyzátor', qaPlh:'Vložte kód nebo dotaz...', qaBtn:'Analyzovat', locTitle:'Globální Jazyková Matice', locPlh:'Zadejte termín...', locBtn:'Iniciovat Projekci', locWait:'Uzly v pohotovosti', chartLabels:['Etika','Věda','Právo','Dopad'] },
-        'en': { id:'en', flag:'🇬🇧', label:'EN', navTitle:'Protocol O // Integrity Core', heroSub:'Protocol O / Core Consciousness', probePlh:'Probing semantic depth...', probeBtn:'Probe ✨', c1Title:'Visual Document Audit', c1Desc:'Upload a snapshot for visual compliance analysis.', c1Btn:'Select Document', c2Voice:'Voice Briefing', c2Gen:'Generate Proof', qaTitle:'Semantic & Codebase Analyzer', qaPlh:'Paste code or query...', qaBtn:'Analyze', locTitle:'Global Linguistic Matrix', locPlh:'Enter term...', locBtn:'Initiate Projection', locWait:'Nodes on standby', chartLabels:['Ethics','Science','Legal','Impact'] }
-    };
-    let activeAppLang = 'cs', ethicsChartInstance = null;
-
-    function initLangSelector() {
-        const c = document.getElementById('lang-selector-container');
-        c.innerHTML = '';
-        Object.values(appLocales).forEach(loc => {
-            const isActive = activeAppLang === loc.id;
-            const btn = document.createElement('button');
-            btn.className = `flex-shrink-0 flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold mono transition-all border ${isActive ? 'bg-purple-600/30 border-purple-500 text-purple-200' : 'bg-white/5 border-white/10 text-slate-400'}`;
-            btn.innerHTML = `<span>${loc.flag}</span><span>${loc.label}</span>`;
-            btn.onclick = () => setAppLang(loc.id);
-            c.appendChild(btn);
-        });
-    }
-
-    function setAppLang(langId) {
-        activeAppLang = langId;
-        initLangSelector();
-        const loc = appLocales[langId];
-        [
-            {id:'nav-title',t:loc.navTitle}, {id:'hero-subtitle',t:loc.heroSub},
-            {id:'ai-query',p:loc.probePlh}, {id:'probe-btn-text',t:loc.probeBtn},
-            {id:'c1-title',t:loc.c1Title}, {id:'c1-desc',t:loc.c1Desc},
-            {id:'c1-btn',t:loc.c1Btn}, {id:'c2-voice',t:loc.c2Voice},
-            {id:'c2-gen',t:loc.c2Gen}, {id:'qa-title-text',t:loc.qaTitle},
-            {id:'qa-input',p:loc.qaPlh}, {id:'qa-btn-text',t:loc.qaBtn},
-            {id:'loc-title-text',t:loc.locTitle}, {id:'multi-lang-input',p:loc.locPlh},
-            {id:'multi-lang-btn-text',t:loc.locBtn}, {id:'loc-wait',t:loc.locWait}
-        ].forEach(el => {
-            const d = document.getElementById(el.id);
-            if (!d) return;
-            d.style.opacity = 0;
-            setTimeout(() => { if (el.t) d.innerText = el.t; else d.placeholder = el.p; d.style.opacity = 1; }, 200);
-        });
-        if (ethicsChartInstance) { ethicsChartInstance.data.labels = loc.chartLabels; ethicsChartInstance.update(); }
-    }
-
-    // =============================================
-    // CORE FUNCTIONS — all use smartRequest()
-    // =============================================
-
-    async function askInnerMind() {
-        const input = document.getElementById('ai-query').value;
-        if (!input) return;
-        const container = document.getElementById('ai-response-container');
-        const loader = document.getElementById('probe-loading');
-        const responseEl = document.getElementById('ai-response');
-        const badgeEl = document.getElementById('ai-engine-badge');
-        container.classList.remove('hidden');
-        loader.classList.remove('hidden');
-        responseEl.innerText = '';
-        try {
-            const result = await smartRequest(
-                input,
-                `You are Protocol O inner mind. Answer poetically and concisely in: ${activeAppLang.toUpperCase()}`
-            );
-            responseEl.innerText = result.text;
-            badgeEl.innerText = result.engine;
-            badgeEl.className = 'engine-badge' + (result.engine.includes('Gemini') ? ' gemini' : '');
-        } catch (e) {
-            responseEl.innerText = e.message;
-        }
-        loader.classList.add('hidden');
-    }
-
-    async function processQA() {
-        const input = document.getElementById('qa-input').value;
-        if (!input) return;
-        const container = document.getElementById('qa-result-container');
-        const statusEl = document.getElementById('qa-status');
-        const answerEl = document.getElementById('qa-answer');
-        const loader = document.getElementById('qa-loading');
-        const badgeEl = document.getElementById('qa-engine-badge');
-        container.classList.remove('hidden');
-        loader.classList.remove('hidden');
-        answerEl.innerText = '';
-        try {
-            const result = await smartRequest(
-                input,
-                `You are Protocol O Analyzer. Tag your response with [CODE_AUDIT] if it's code-related, or [SEMANTIC] if it's semantic/conceptual. Respond in: ${activeAppLang.toUpperCase()}.`
-            );
-            loader.classList.add('hidden');
-            const text = result.text;
-            badgeEl.innerText = result.engine;
-            badgeEl.className = 'engine-badge ml-auto' + (result.engine.includes('Gemini') ? ' gemini' : '');
-            if (text.includes('[CODE_AUDIT]')) {
-                statusEl.innerText = 'CODEBASE AUDIT';
-                statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-blue-500/20 text-blue-400';
-            } else {
-                statusEl.innerText = 'SEMANTIC SYNC';
-                statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-green-500/20 text-green-400';
-            }
-            answerEl.innerText = text.replace(/\[.*?\]/g, '').trim();
-        } catch (e) {
-            loader.classList.add('hidden');
-            statusEl.innerText = 'ERROR';
-            answerEl.innerText = e.message;
-        }
-    }
-
-    async function runMultiVectTranslation() {
-        const input = document.getElementById('multi-lang-input').value;
-        if (!input) return;
-        const results = document.getElementById('multi-lang-results');
-        results.innerHTML = '<div class="ai-loading mx-auto mt-10"></div>';
-        try {
-            const result = await smartRequest(
-                `Translate the following to EN, DE, FR, ES. Return ONLY valid JSON: {"EN":"...","DE":"...","FR":"...","ES":"..."}. Input: ${input}`,
-                'You are a precise translation engine. Output only valid JSON, no markdown, no explanation.'
-            );
-            const clean = result.text.replace(/```json|```/g, '').trim();
-            const data = JSON.parse(clean);
-            const engineLabel = result.engine;
-            const isGemini = engineLabel.includes('Gemini');
-            results.innerHTML = `<p class="engine-badge ${isGemini ? 'gemini' : ''} mb-2">${engineLabel}</p>` +
-                Object.entries(data).map(([lang, val]) =>
-                    `<div class="p-2 border-b border-white/5 flex justify-between"><span class="text-[10px] mono text-teal-400">${lang}</span><span class="text-xs">${val}</span></div>`
-                ).join('');
-        } catch (e) {
-            results.innerHTML = `<span class="text-red-400 text-xs mono">${e.message}</span>`;
-        }
-    }
-
-    async function performVisualAudit(input) {
-        const file = input.files[0];
-        if (!file) return;
-        if (!_oGateKey) {
-            document.getElementById('visual-audit-result').innerText = 'Visual audit requires Gemini multimodal API. Open ◈ and commit your Gemini key to unlock.';
-            document.getElementById('visual-audit-result').classList.remove('hidden');
-            return;
-        }
-        const loader = document.getElementById('visual-audit-loading');
-        const result = document.getElementById('visual-audit-result');
-        loader.classList.remove('hidden');
-        result.classList.add('hidden');
-        try {
-            const b64 = await new Promise(r => { const rd = new FileReader(); rd.onload = e => r(e.target.result.split(',')[1]); rd.readAsDataURL(file); });
-            const res = await apiRequest({
-                contents: [{ parts: [{ inline_data: { mime_type: file.type, data: b64 } }, { text: 'Analyze for Protocol O compliance. Be concise.' }] }]
+    const _engine = {
+        async apiRequest(payload) {
+            if (!_key) throw new Error('No Gemini key — O-Gate not committed.');
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${TEXT_MODEL}:generateContent?key=${_key}`;
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
             });
-            result.innerText = '[Gemini · O-Gate] ' + res.candidates[0].content.parts[0].text;
-        } catch (e) {
-            result.innerText = e.message;
-        }
-        loader.classList.add('hidden');
-        result.classList.remove('hidden');
-    }
+            if (!res.ok) throw new Error(`Gemini HTTP ${res.status}`);
+            return res.json();
+        },
 
-    async function runBodyScanner() {
-        const payload = document.getElementById('scanner-url-payload').value.trim();
-        const pattern = document.getElementById('scanner-pattern').value.trim();
-        const resultEl = document.getElementById('scanner-result');
-        const statusEl = document.getElementById('scanner-status');
-        const bodyEl = document.getElementById('scanner-body');
-        const countEl = document.getElementById('scanner-match-count');
-        const badgeEl = document.getElementById('scanner-engine-badge');
-        if (!payload) return;
-        resultEl.classList.remove('hidden');
-        statusEl.innerText = 'SCANNING...';
-        statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-yellow-500/20 text-yellow-400';
-        bodyEl.innerHTML = '<div class="ai-loading mx-auto"></div>';
-        countEl.innerText = '';
-        try {
-            const result = await smartRequest(payload, 'Answer concisely and precisely.');
-            badgeEl.innerText = result.engine;
-            badgeEl.className = 'engine-badge ml-auto' + (result.engine.includes('Gemini') ? ' gemini' : '');
-            const pseudoBody = JSON.stringify({ response: result.text, engine: result.engine }, null, 2);
-            let displayBody = pseudoBody, matchCount = 0;
-            if (pattern) {
+        async pollinations(prompt, systemPrompt) {
+            const res = await fetch('https://text.pollinations.ai/openai', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: 'openai',
+                    messages: [
+                        { role: 'system', content: systemPrompt || 'You are Protocol O — a precise, poetic-technical AI engine.' },
+                        { role: 'user', content: prompt }
+                    ],
+                    temperature: 0.7,
+                    max_tokens: 512
+                })
+            });
+            if (!res.ok) throw new Error(`Pollinations HTTP ${res.status}`);
+            const data = await res.json();
+            return data.choices[0].message.content.trim();
+        },
+
+        async smart(prompt, systemPrompt) {
+            if (_key) {
                 try {
-                    const rx = new RegExp(pattern, 'gi');
-                    const matches = pseudoBody.match(rx);
-                    matchCount = matches ? matches.length : 0;
-                    displayBody = pseudoBody.replace(rx, m => `«${m}»`);
-                    if (matchCount > 0) {
-                        statusEl.innerText = `MATCH — ${matchCount}x FOUND`;
-                        statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-emerald-500/20 text-emerald-400';
-                    } else {
-                        statusEl.innerText = 'NO MATCH';
-                        statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-red-500/20 text-red-400';
-                    }
-                    countEl.innerText = `Pattern: "${pattern}" — ${matchCount} hit(s)`;
-                } catch (rxErr) {
-                    statusEl.innerText = 'REGEX ERROR';
-                    statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-orange-500/20 text-orange-400';
+                    const payload = { contents: [{ parts: [{ text: prompt }] }] };
+                    if (systemPrompt) payload.systemInstruction = { parts: [{ text: systemPrompt }] };
+                    const res = await _engine.apiRequest(payload);
+                    return { text: res.candidates[0].content.parts[0].text.trim(), engine: 'Gemini · O-Gate' };
+                } catch (e) {
+                    console.warn('Gemini failed, falling back to Pollinations:', e.message);
                 }
-            } else {
-                statusEl.innerText = 'RESPONSE OK — no pattern';
-                statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-blue-500/20 text-blue-400';
             }
-            bodyEl.textContent = displayBody;
-        } catch (e) {
-            statusEl.innerText = 'ERROR';
-            statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-red-500/20 text-red-400';
-            bodyEl.textContent = e.message;
+            const text = await _engine.pollinations(prompt, systemPrompt);
+            return { text, engine: 'Pollinations.AI · FREE' };
         }
-    }
+    };
 
     // =============================================
-    // NETWORK PROBE C — target handlers
-    // FREE group: no key needed.
-    // GEMINI group: throws if _oGateKey missing.
-    // CUSTOM: arbitrary GET, CORS-dependent.
+    // UTILITY
     // =============================================
-    document.getElementById('probe-target').addEventListener('change', function () {
-        document.getElementById('probe-custom-url').classList.toggle('hidden', this.value !== 'custom');
-    });
-
-    async function runNetworkProbe() {
-        const target = document.getElementById('probe-target').value;
-        const resultEl = document.getElementById('probe-result');
-        const dot = document.getElementById('probe-dot');
-        const statusText = document.getElementById('probe-status-text');
-        const latencyEl = document.getElementById('probe-latency');
-        const bodyEl = document.getElementById('probe-body');
-        resultEl.classList.remove('hidden');
-        dot.className = 'w-2 h-2 rounded-full bg-yellow-400 animate-pulse';
-        statusText.innerText = 'Probing...';
-        statusText.className = 'text-[10px] mono text-yellow-400';
-        latencyEl.innerText = '';
-        bodyEl.textContent = '';
-        const t0 = performance.now();
-        try {
-            let res, url;
-
-            if (target === 'pollinations-ping') {
-                url = 'https://text.pollinations.ai/openai';
-                res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ model: 'openai', messages: [{ role: 'user', content: 'ping' }], max_tokens: 5 })
+    const _util = {
+        async shortHash(input) {
+            const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input));
+            return Array.from(new Uint8Array(buf)).slice(0, 4).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+        },
+        extractStructure(obj, prefix = '', depth = 0) {
+            if (depth > 4) return '';
+            let lines = [];
+            if (Array.isArray(obj)) {
+                lines.push(`${prefix}[] (${obj.length} items)`);
+                if (obj[0] && typeof obj[0] === 'object') lines.push(_util.extractStructure(obj[0], prefix + '  [0].', depth + 1));
+            } else if (obj && typeof obj === 'object') {
+                Object.keys(obj).forEach(k => {
+                    const v = obj[k];
+                    const type = Array.isArray(v) ? `Array(${v.length})` : typeof v;
+                    lines.push(`${prefix}${k}: ${type}`);
+                    if (v && typeof v === 'object' && depth < 3) lines.push(_util.extractStructure(v, prefix + '  ', depth + 1));
                 });
-
-            } else if (target === 'pollinations-models') {
-                // Pollinations image models list — public, no key
-                url = 'https://image.pollinations.ai/models';
-                res = await fetch(url);
-
-            } else if (target === 'huggingface-ping') {
-                // HF Inference API — public rate-limited tier, no key
-                url = 'https://api-inference.huggingface.co/models/gpt2';
-                res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ inputs: 'ping', parameters: { max_new_tokens: 5 } })
-                });
-
-            } else if (target === 'cohere-ping') {
-                // Cohere trial — public endpoint, no key for structure check (returns 401 but proves endpoint live)
-                url = 'https://api.cohere.ai/v1/generate';
-                res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer trial' },
-                    body: JSON.stringify({ model: 'command', prompt: 'ping', max_tokens: 5 })
-                });
-
-            } else if (target === 'gemini-models') {
-                if (!_oGateKey) throw new Error('Gemini key required — open ◈ to commit.');
-                url = `https://generativelanguage.googleapis.com/v1beta/models?key=${_oGateKey}`;
-                res = await fetch(url);
-
-            } else if (target === 'gemini-ping') {
-                if (!_oGateKey) throw new Error('Gemini key required — open ◈ to commit.');
-                url = `https://generativelanguage.googleapis.com/v1beta/models/${TEXT_MODEL}:generateContent?key=${_oGateKey}`;
-                res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: 'ping' }] }] }) });
-
-            } else {
-                url = document.getElementById('probe-custom-url').value.trim();
-                if (!url) throw new Error('Enter a URL');
-                res = await fetch(url);
             }
-
-            const latency = Math.round(performance.now() - t0);
-            latencyEl.innerText = `${latency}ms`;
-
-            let data;
-            const ct = res.headers.get('content-type') || '';
-            if (ct.includes('application/json')) {
-                data = await res.json();
-            } else {
-                const txt = await res.text();
-                try { data = JSON.parse(txt); } catch { data = { raw: txt.substring(0, 500) }; }
-            }
-
-            if (res.ok) {
-                dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
-                statusText.innerText = `HTTP ${res.status} — ONLINE`;
-                statusText.className = 'text-[10px] mono text-emerald-400';
-            } else {
-                dot.className = 'w-2 h-2 rounded-full bg-orange-400';
-                statusText.innerText = `HTTP ${res.status} — ${res.statusText || 'ERROR'}`;
-                statusText.className = 'text-[10px] mono text-orange-400';
-            }
-
-            const keys = extractStructure(data);
-            bodyEl.textContent = `STRUCTURE:\n${keys}\n\nRAW (first 2000 chars):\n${JSON.stringify(data, null, 2).substring(0, 2000)}`;
-
-        } catch (e) {
-            const latency = Math.round(performance.now() - t0);
-            dot.className = 'w-2 h-2 rounded-full bg-red-400';
-            statusText.innerText = `PROBE FAILED — ${e.message}`;
-            statusText.className = 'text-[10px] mono text-red-400';
-            latencyEl.innerText = `${latency}ms`;
-            bodyEl.textContent = e.message;
+            return lines.join('\n');
         }
-    }
+    };
 
-    function extractStructure(obj, prefix = '', depth = 0) {
-        if (depth > 4) return '';
-        let lines = [];
-        if (Array.isArray(obj)) {
-            lines.push(`${prefix}[] (${obj.length} items)`);
-            if (obj[0] && typeof obj[0] === 'object') lines.push(extractStructure(obj[0], prefix + '  [0].', depth + 1));
-        } else if (obj && typeof obj === 'object') {
-            Object.keys(obj).forEach(k => {
-                const v = obj[k];
-                const type = Array.isArray(v) ? `Array(${v.length})` : typeof v;
-                lines.push(`${prefix}${k}: ${type}`);
-                if (v && typeof v === 'object' && depth < 3) lines.push(extractStructure(v, prefix + '  ', depth + 1));
+    // =============================================
+    // LOCALE LAYER
+    // =============================================
+    const _locale = {
+        active: 'cs',
+        chartInstance: null,
+        data: {
+            cs: { id:'cs', flag:'🇨🇿', label:'CZ', navTitle:'Protocol O // Integrity Core', heroSub:'Protokol O / Vědomí Jádra', probePlh:'Sondování sémantické hloubky...', probeBtn:'Sonda ✨', c1Title:'Vizuální Audit Dokumentů', c1Desc:'Nahrajte snímek pro vizuální analýzu souladu.', c1Btn:'Vybrat Dokument', c2Voice:'Hlasový Brífink', c2Gen:'Generovat Důkaz', qaTitle:'Sémantický & Codebase Analyzátor', qaPlh:'Vložte kód nebo dotaz...', qaBtn:'Analyzovat', locTitle:'Globální Jazyková Matice', locPlh:'Zadejte termín...', locBtn:'Iniciovat Projekci', locWait:'Uzly v pohotovosti', chartLabels:['Etika','Věda','Právo','Dopad'] },
+            en: { id:'en', flag:'🇬🇧', label:'EN', navTitle:'Protocol O // Integrity Core', heroSub:'Protocol O / Core Consciousness', probePlh:'Probing semantic depth...', probeBtn:'Probe ✨', c1Title:'Visual Document Audit', c1Desc:'Upload a snapshot for visual compliance analysis.', c1Btn:'Select Document', c2Voice:'Voice Briefing', c2Gen:'Generate Proof', qaTitle:'Semantic & Codebase Analyzer', qaPlh:'Paste code or query...', qaBtn:'Analyze', locTitle:'Global Linguistic Matrix', locPlh:'Enter term...', locBtn:'Initiate Projection', locWait:'Nodes on standby', chartLabels:['Ethics','Science','Legal','Impact'] }
+        },
+
+        init() {
+            const c = document.getElementById('lang-selector-container');
+            c.innerHTML = '';
+            Object.values(_locale.data).forEach(loc => {
+                const btn = document.createElement('button');
+                const isActive = _locale.active === loc.id;
+                btn.className = `flex-shrink-0 flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold mono transition-all border ${isActive ? 'bg-purple-600/30 border-purple-500 text-purple-200' : 'bg-white/5 border-white/10 text-slate-400'}`;
+                btn.innerHTML = `<span>${loc.flag}</span><span>${loc.label}</span>`;
+                btn.addEventListener('click', () => _locale.set(loc.id));
+                c.appendChild(btn);
             });
+        },
+
+        set(langId) {
+            _locale.active = langId;
+            _locale.init();
+            const loc = _locale.data[langId];
+            [
+                { id:'nav-title', t:loc.navTitle }, { id:'hero-subtitle', t:loc.heroSub },
+                { id:'ai-query', p:loc.probePlh }, { id:'probe-btn-text', t:loc.probeBtn },
+                { id:'c1-title', t:loc.c1Title }, { id:'c1-desc', t:loc.c1Desc },
+                { id:'c1-btn', t:loc.c1Btn }, { id:'c2-voice', t:loc.c2Voice },
+                { id:'c2-gen', t:loc.c2Gen }, { id:'qa-title-text', t:loc.qaTitle },
+                { id:'qa-input', p:loc.qaPlh }, { id:'qa-btn-text', t:loc.qaBtn },
+                { id:'loc-title-text', t:loc.locTitle }, { id:'multi-lang-input', p:loc.locPlh },
+                { id:'multi-lang-btn-text', t:loc.locBtn }, { id:'loc-wait', t:loc.locWait }
+            ].forEach(el => {
+                const d = document.getElementById(el.id);
+                if (!d) return;
+                d.style.opacity = 0;
+                setTimeout(() => { if (el.t) d.innerText = el.t; else d.placeholder = el.p; d.style.opacity = 1; }, 200);
+            });
+            if (_locale.chartInstance) {
+                _locale.chartInstance.data.labels = loc.chartLabels;
+                _locale.chartInstance.update();
+            }
         }
-        return lines.join('\n');
+    };
+
+    // =============================================
+    // FUNCTION LAYER — all use _engine.smart()
+    // Sub-functions are private, wired via addEventListener
+    // =============================================
+    const _fn = {
+        async probe() {
+            const input = document.getElementById('ai-query').value;
+            if (!input) return;
+            const container = document.getElementById('ai-response-container');
+            const loader = document.getElementById('probe-loading');
+            const responseEl = document.getElementById('ai-response');
+            const badgeEl = document.getElementById('ai-engine-badge');
+            container.classList.remove('hidden');
+            loader.classList.remove('hidden');
+            responseEl.innerText = '';
+            try {
+                const result = await _engine.smart(input, `You are Protocol O inner mind. Answer poetically and concisely in: ${_locale.active.toUpperCase()}`);
+                responseEl.innerText = result.text;
+                badgeEl.innerText = result.engine;
+                badgeEl.className = 'engine-badge' + (result.engine.includes('Gemini') ? ' gemini' : '');
+            } catch (e) {
+                responseEl.innerText = e.message;
+            }
+            loader.classList.add('hidden');
+        },
+
+        async semanticAnalyze() {
+            const input = document.getElementById('qa-input').value;
+            if (!input) return;
+            const container = document.getElementById('qa-result-container');
+            const statusEl = document.getElementById('qa-status');
+            const answerEl = document.getElementById('qa-answer');
+            const loader = document.getElementById('qa-loading');
+            const badgeEl = document.getElementById('qa-engine-badge');
+            container.classList.remove('hidden');
+            loader.classList.remove('hidden');
+            answerEl.innerText = '';
+            try {
+                const result = await _engine.smart(
+                    input,
+                    `You are Protocol O Analyzer. Tag your response with [CODE_AUDIT] if it's code-related, or [SEMANTIC] if it's semantic/conceptual. Respond in: ${_locale.active.toUpperCase()}.`
+                );
+                loader.classList.add('hidden');
+                const text = result.text;
+                badgeEl.innerText = result.engine;
+                badgeEl.className = 'engine-badge ml-auto' + (result.engine.includes('Gemini') ? ' gemini' : '');
+                if (text.includes('[CODE_AUDIT]')) {
+                    statusEl.innerText = 'CODEBASE AUDIT';
+                    statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-blue-500/20 text-blue-400';
+                } else {
+                    statusEl.innerText = 'SEMANTIC SYNC';
+                    statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-green-500/20 text-green-400';
+                }
+                answerEl.innerText = text.replace(/\[.*?\]/g, '').trim();
+            } catch (e) {
+                loader.classList.add('hidden');
+                statusEl.innerText = 'ERROR';
+                answerEl.innerText = e.message;
+            }
+        },
+
+        async multiTranslate() {
+            const input = document.getElementById('multi-lang-input').value;
+            if (!input) return;
+            const results = document.getElementById('multi-lang-results');
+            results.innerHTML = '<div class="ai-loading mx-auto mt-10"></div>';
+            try {
+                const result = await _engine.smart(
+                    `Translate the following to EN, DE, FR, ES. Return ONLY valid JSON: {"EN":"...","DE":"...","FR":"...","ES":"..."}. Input: ${input}`,
+                    'You are a precise translation engine. Output only valid JSON, no markdown, no explanation.'
+                );
+                const clean = result.text.replace(/```json|```/g, '').trim();
+                const data = JSON.parse(clean);
+                const isGemini = result.engine.includes('Gemini');
+                results.innerHTML = `<p class="engine-badge ${isGemini ? 'gemini' : ''} mb-2">${result.engine}</p>` +
+                    Object.entries(data).map(([lang, val]) =>
+                        `<div class="p-2 border-b border-white/5 flex justify-between"><span class="text-[10px] mono text-teal-400">${lang}</span><span class="text-xs">${val}</span></div>`
+                    ).join('');
+            } catch (e) {
+                results.innerHTML = `<span class="text-red-400 text-xs mono">${e.message}</span>`;
+            }
+        },
+
+        async visualAudit(file) {
+            if (!file) return;
+            if (!_key) {
+                const r = document.getElementById('visual-audit-result');
+                r.innerText = 'Visual audit requires Gemini multimodal API. Open ◈ and commit your Gemini key to unlock.';
+                r.classList.remove('hidden');
+                return;
+            }
+            const loader = document.getElementById('visual-audit-loading');
+            const result = document.getElementById('visual-audit-result');
+            loader.classList.remove('hidden');
+            result.classList.add('hidden');
+            try {
+                const b64 = await new Promise(r => {
+                    const rd = new FileReader();
+                    rd.onload = e => r(e.target.result.split(',')[1]);
+                    rd.readAsDataURL(file);
+                });
+                const res = await _engine.apiRequest({
+                    contents: [{ parts: [{ inline_data: { mime_type: file.type, data: b64 } }, { text: 'Analyze for Protocol O compliance. Be concise.' }] }]
+                });
+                result.innerText = '[Gemini · O-Gate] ' + res.candidates[0].content.parts[0].text;
+            } catch (e) {
+                result.innerText = e.message;
+            }
+            loader.classList.add('hidden');
+            result.classList.remove('hidden');
+        },
+
+        async bodyScanner() {
+            const payload = document.getElementById('scanner-url-payload').value.trim();
+            const pattern = document.getElementById('scanner-pattern').value.trim();
+            const resultEl = document.getElementById('scanner-result');
+            const statusEl = document.getElementById('scanner-status');
+            const bodyEl = document.getElementById('scanner-body');
+            const countEl = document.getElementById('scanner-match-count');
+            const badgeEl = document.getElementById('scanner-engine-badge');
+            if (!payload) return;
+            resultEl.classList.remove('hidden');
+            statusEl.innerText = 'SCANNING...';
+            statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-yellow-500/20 text-yellow-400';
+            bodyEl.innerHTML = '<div class="ai-loading mx-auto"></div>';
+            countEl.innerText = '';
+            try {
+                const result = await _engine.smart(payload, 'Answer concisely and precisely.');
+                badgeEl.innerText = result.engine;
+                badgeEl.className = 'engine-badge ml-auto' + (result.engine.includes('Gemini') ? ' gemini' : '');
+                const pseudoBody = JSON.stringify({ response: result.text, engine: result.engine }, null, 2);
+                let displayBody = pseudoBody, matchCount = 0;
+                if (pattern) {
+                    try {
+                        const rx = new RegExp(pattern, 'gi');
+                        const matches = pseudoBody.match(rx);
+                        matchCount = matches ? matches.length : 0;
+                        displayBody = pseudoBody.replace(rx, m => `«${m}»`);
+                        if (matchCount > 0) {
+                            statusEl.innerText = `MATCH — ${matchCount}x FOUND`;
+                            statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-emerald-500/20 text-emerald-400';
+                        } else {
+                            statusEl.innerText = 'NO MATCH';
+                            statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-red-500/20 text-red-400';
+                        }
+                        countEl.innerText = `Pattern: "${pattern}" — ${matchCount} hit(s)`;
+                    } catch (_rxErr) {
+                        statusEl.innerText = 'REGEX ERROR';
+                        statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-orange-500/20 text-orange-400';
+                    }
+                } else {
+                    statusEl.innerText = 'RESPONSE OK — no pattern';
+                    statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-blue-500/20 text-blue-400';
+                }
+                bodyEl.textContent = displayBody;
+            } catch (e) {
+                statusEl.innerText = 'ERROR';
+                statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-red-500/20 text-red-400';
+                bodyEl.textContent = e.message;
+            }
+        },
+
+        async networkProbe() {
+            const target = document.getElementById('probe-target').value;
+            const resultEl = document.getElementById('probe-result');
+            const dot = document.getElementById('probe-dot');
+            const statusText = document.getElementById('probe-status-text');
+            const latencyEl = document.getElementById('probe-latency');
+            const bodyEl = document.getElementById('probe-body');
+            resultEl.classList.remove('hidden');
+            dot.className = 'w-2 h-2 rounded-full bg-yellow-400 animate-pulse';
+            statusText.innerText = 'Probing...';
+            statusText.className = 'text-[10px] mono text-yellow-400';
+            latencyEl.innerText = '';
+            bodyEl.textContent = '';
+            const t0 = performance.now();
+            try {
+                let res;
+                if (target === 'pollinations-ping') {
+                    res = await fetch('https://text.pollinations.ai/openai', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'openai', messages: [{ role: 'user', content: 'ping' }], max_tokens: 5 }) });
+                } else if (target === 'pollinations-models') {
+                    res = await fetch('https://image.pollinations.ai/models');
+                } else if (target === 'huggingface-ping') {
+                    res = await fetch('https://api-inference.huggingface.co/models/gpt2', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ inputs: 'ping', parameters: { max_new_tokens: 5 } }) });
+                } else if (target === 'cohere-ping') {
+                    res = await fetch('https://api.cohere.ai/v1/generate', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer trial' }, body: JSON.stringify({ model: 'command', prompt: 'ping', max_tokens: 5 }) });
+                } else if (target === 'gemini-models') {
+                    if (!_key) throw new Error('Gemini key required — open ◈ to commit.');
+                    res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${_key}`);
+                } else if (target === 'gemini-ping') {
+                    if (!_key) throw new Error('Gemini key required — open ◈ to commit.');
+                    res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${TEXT_MODEL}:generateContent?key=${_key}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: 'ping' }] }] }) });
+                } else {
+                    const url = document.getElementById('probe-custom-url').value.trim();
+                    if (!url) throw new Error('Enter a URL');
+                    res = await fetch(url);
+                }
+
+                const latency = Math.round(performance.now() - t0);
+                latencyEl.innerText = `${latency}ms`;
+
+                let data;
+                const ct = res.headers.get('content-type') || '';
+                if (ct.includes('application/json')) {
+                    data = await res.json();
+                } else {
+                    const txt = await res.text();
+                    try { data = JSON.parse(txt); } catch { data = { raw: txt.substring(0, 500) }; }
+                }
+
+                if (res.ok) {
+                    dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+                    statusText.innerText = `HTTP ${res.status} — ONLINE`;
+                    statusText.className = 'text-[10px] mono text-emerald-400';
+                } else {
+                    dot.className = 'w-2 h-2 rounded-full bg-orange-400';
+                    statusText.innerText = `HTTP ${res.status} — ${res.statusText || 'ERROR'}`;
+                    statusText.className = 'text-[10px] mono text-orange-400';
+                }
+                bodyEl.textContent = `STRUCTURE:\n${_util.extractStructure(data)}\n\nRAW (first 2000 chars):\n${JSON.stringify(data, null, 2).substring(0, 2000)}`;
+
+            } catch (e) {
+                const latency = Math.round(performance.now() - t0);
+                dot.className = 'w-2 h-2 rounded-full bg-red-400';
+                statusText.innerText = `PROBE FAILED — ${e.message}`;
+                statusText.className = 'text-[10px] mono text-red-400';
+                latencyEl.innerText = `${latency}ms`;
+                bodyEl.textContent = e.message;
+            }
+        },
+
+        voiceBriefing() {
+            document.getElementById('tts-icon').innerText = '🔕';
+            setTimeout(() => { document.getElementById('tts-icon').innerText = '🔊'; }, 2000);
+            alert('O-Gate: Voice briefing requires server-side TTS.');
+        }
+    };
+
+    // =============================================
+    // WIRE — all event listeners bound here, zero
+    // inline handlers remain in HTML
+    // =============================================
+    function _wire() {
+        // Gate sublayer
+        document.getElementById('nav-gate-btn').addEventListener('click', _gate.open);
+        document.getElementById('gate-close-btn').addEventListener('click', _gate.close);
+        document.getElementById('gate-commit-btn').addEventListener('click', _gate.commit);
+        document.getElementById('gate-purge-btn').addEventListener('click', _gate.purge);
+        document.getElementById('gate-key-input').addEventListener('keydown', e => { if (e.key === 'Enter') _gate.commit(); });
+
+        // Certificate sublayer
+        document.getElementById('cert-close-btn').addEventListener('click', _cert.close);
+        document.getElementById('cert-dismiss-btn').addEventListener('click', _cert.close);
+        document.getElementById('cert-download-btn').addEventListener('click', _cert.download);
+        document.getElementById('cert-gen-btn').addEventListener('click', _cert.generate);
+
+        // Nav
+        document.getElementById('nav-recalibrate-btn').addEventListener('click', () => location.reload());
+
+        // Probe
+        document.getElementById('probe-btn').addEventListener('click', _fn.probe);
+        document.getElementById('ai-query').addEventListener('keydown', e => { if (e.key === 'Enter') _fn.probe(); });
+
+        // Semantic analyzer
+        document.getElementById('qa-btn').addEventListener('click', _fn.semanticAnalyze);
+
+        // Language matrix
+        document.getElementById('multi-lang-btn').addEventListener('click', _fn.multiTranslate);
+
+        // Visual audit
+        document.getElementById('c1-btn').addEventListener('click', () => document.getElementById('visual-audit-input').click());
+        document.getElementById('visual-audit-input').addEventListener('change', function () { _fn.visualAudit(this.files[0]); });
+
+        // Body scanner
+        document.getElementById('scanner-btn').addEventListener('click', _fn.bodyScanner);
+
+        // Network probe
+        document.getElementById('probe-run-btn').addEventListener('click', _fn.networkProbe);
+        document.getElementById('probe-target').addEventListener('change', function () {
+            document.getElementById('probe-custom-url').classList.toggle('hidden', this.value !== 'custom');
+        });
+
+        // Voice briefing
+        document.getElementById('voice-btn').addEventListener('click', _fn.voiceBriefing);
+
+        // Global keyboard
+        document.addEventListener('keydown', e => {
+            if (e.ctrlKey && e.key === 'g') { e.preventDefault(); _gate.open(); }
+            if (e.key === 'Escape') {
+                if (document.getElementById('sublayer-gate').classList.contains('open')) _gate.close();
+                if (document.getElementById('cert-sublayer').classList.contains('open')) _cert.close();
+            }
+        });
     }
 
-    function triggerVoiceBriefing() {
-        document.getElementById('tts-icon').innerText = '🔕';
-        setTimeout(() => { document.getElementById('tts-icon').innerText = '🔊'; }, 2000);
-        alert('O-Gate: Voice briefing requires server-side TTS.');
-    }
-
-    function initInnerPlot() {
+    // =============================================
+    // INIT
+    // =============================================
+    function _initPlot() {
         const n = 100;
         Plotly.newPlot('inner-space-plot', [{
             x: Array.from({ length: n }, () => Math.random() * 20),
@@ -1178,28 +1081,27 @@
         }, { displayModeBar: false });
     }
 
-    function recalibrate() { location.reload(); }
-
-    window.onload = () => {
-        initInnerPlot();
-        initLangSelector();
-        ethicsChartInstance = new Chart(document.getElementById('ethicsChart'), {
+    window.addEventListener('load', () => {
+        _wire();
+        _initPlot();
+        _locale.init();
+        _locale.chartInstance = new Chart(document.getElementById('ethicsChart'), {
             type: 'bar',
             data: {
-                labels: appLocales.cs.chartLabels,
+                labels: _locale.data.cs.chartLabels,
                 datasets: [{ data: [95, 80, 85, 90], backgroundColor: ['#2563eb', '#14b8a6', '#f97316', '#6366f1'] }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: true, maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' } } }
             }
         });
-        setAppLang('cs');
-        updateOrbStatus();
-        document.getElementById('ai-query').addEventListener('keydown', e => { if (e.key === 'Enter') askInnerMind(); });
-    };
+        _locale.set('cs');
+        _gate._syncOrb();
+    });
+
+})();
 </script>
 </body>
 </html>
