@@ -13,12 +13,12 @@
             --core-blue: #2563eb;
             --core-teal: #14b8a6;
             --core-dark: #020617;
-            --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
-            --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
-            --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
-            --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
-            --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
-            --text-hero: clamp(3rem, 0.5rem + 7vw, 8rem);
+            --text-xs:   clamp(0.75rem,  0.7rem  + 0.25vw, 0.875rem);
+            --text-sm:   clamp(0.875rem, 0.8rem  + 0.35vw, 1rem);
+            --text-base: clamp(1rem,     0.95rem + 0.25vw, 1.125rem);
+            --text-lg:   clamp(1.125rem, 1rem    + 0.75vw, 1.5rem);
+            --text-xl:   clamp(1.5rem,   1.2rem  + 1.25vw, 2.25rem);
+            --text-hero: clamp(3rem,     0.5rem  + 7vw,    8rem);
             --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem;
             --space-6: 1.5rem; --space-8: 2rem; --space-12: 3rem;
             --radius-md: 0.5rem; --radius-lg: 0.75rem; --radius-xl: 1rem;
@@ -277,6 +277,9 @@
             margin-bottom: 6px;
         }
         .engine-badge.gemini { border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.08); color: rgba(52,211,153,0.7); }
+
+        /* PROBE OPTION GROUP labels */
+        #probe-target optgroup { color: rgba(148,163,184,0.5); font-size: 10px; }
     </style>
 </head>
 <body class="antialiased">
@@ -541,7 +544,7 @@
             </div>
         </div>
 
-        <!-- 06 NETWORK PROBE -->
+        <!-- 06 NETWORK PROBE C -->
         <div class="glass p-8 rounded-3xl border-t border-purple-500/20">
             <h2 class="text-2xl font-bold mb-2 flex items-center gap-3">
                 <span class="section-num text-purple-400">06</span>
@@ -549,11 +552,26 @@
             </h2>
             <p class="text-slate-500 text-xs mono mb-6">C — Prob live API endpointové struktury</p>
             <div class="flex flex-col gap-3">
+                <!-- =============================================
+                     PROBE TARGET SELECT — sublayer options
+                     FREE group: keyless, always available.
+                     GEMINI group: key required (O-Gate).
+                     CUSTOM: arbitrary GET endpoint.
+                     ============================================= -->
                 <select id="probe-target" class="bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-xs mono focus:outline-none focus:border-purple-500 text-slate-300">
-                    <option value="pollinations-ping">Pollinations — ping (free, keyless)</option>
-                    <option value="gemini-models">Gemini — list models (key required)</option>
-                    <option value="gemini-ping">Gemini — ping generateContent (key required)</option>
-                    <option value="custom">Custom URL (GET)</option>
+                    <optgroup label="── FREE · KEYLESS ──────────────">
+                        <option value="pollinations-ping">Pollinations — text ping (free)</option>
+                        <option value="pollinations-models">Pollinations — list models (free)</option>
+                        <option value="huggingface-ping">Hugging Face — inference ping (free)</option>
+                        <option value="cohere-ping">Cohere — trial generate ping (free)</option>
+                    </optgroup>
+                    <optgroup label="── GEMINI · KEY REQUIRED ────────">
+                        <option value="gemini-models">Gemini — list models (key required)</option>
+                        <option value="gemini-ping">Gemini — ping generateContent (key required)</option>
+                    </optgroup>
+                    <optgroup label="── CUSTOM ───────────────────────">
+                        <option value="custom">Custom URL (GET)</option>
+                    </optgroup>
                 </select>
                 <input type="text" id="probe-custom-url" class="hidden bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs mono focus:outline-none focus:border-purple-500" placeholder="https://...">
                 <button onclick="runNetworkProbe()" class="bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 border border-purple-500/40 px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest mono transition-all">📶 Spustit Probe</button>
@@ -644,7 +662,7 @@
     // =============================================
     // ENGINE LAYER
     //
-    // apiRequest()         — Gemini only, throws if no key
+    // apiRequest()          — Gemini only, throws if no key
     // pollinationsRequest() — free, keyless
     // smartRequest()        — tries Gemini first, falls to Pollinations
     //                         returns { text, engine }
@@ -698,7 +716,6 @@
                     engine: 'Gemini · O-Gate'
                 };
             } catch (e) {
-                // Gemini failed — fall through to Pollinations
                 console.warn('Gemini failed, falling back to Pollinations:', e.message);
             }
         }
@@ -714,7 +731,6 @@
 
     // =============================================
     // GENERATE CERTIFICATE
-    // Uses Pollinations (free) or Gemini (if key present).
     // =============================================
     let _certData = null;
 
@@ -856,7 +872,6 @@
 
     // =============================================
     // CORE FUNCTIONS — all use smartRequest()
-    // Engine badge injected into every result area.
     // =============================================
 
     async function askInnerMind() {
@@ -928,7 +943,6 @@
                 `Translate the following to EN, DE, FR, ES. Return ONLY valid JSON: {"EN":"...","DE":"...","FR":"...","ES":"..."}. Input: ${input}`,
                 'You are a precise translation engine. Output only valid JSON, no markdown, no explanation.'
             );
-            // Strip markdown code fences if present
             const clean = result.text.replace(/```json|```/g, '').trim();
             const data = JSON.parse(clean);
             const engineLabel = result.engine;
@@ -942,7 +956,6 @@
         }
     }
 
-    // Visual Audit — multimodal, requires Gemini key
     async function performVisualAudit(input) {
         const file = input.files[0];
         if (!file) return;
@@ -968,7 +981,6 @@
         result.classList.remove('hidden');
     }
 
-    // --- SCANNER B ---
     async function runBodyScanner() {
         const payload = document.getElementById('scanner-url-payload').value.trim();
         const pattern = document.getElementById('scanner-pattern').value.trim();
@@ -984,17 +996,11 @@
         bodyEl.innerHTML = '<div class="ai-loading mx-auto"></div>';
         countEl.innerText = '';
         try {
-            const result = await smartRequest(
-                payload,
-                'Answer concisely and precisely.'
-            );
+            const result = await smartRequest(payload, 'Answer concisely and precisely.');
             badgeEl.innerText = result.engine;
             badgeEl.className = 'engine-badge ml-auto' + (result.engine.includes('Gemini') ? ' gemini' : '');
-
-            // For scanner, wrap result in a pseudo-response JSON for pattern matching
             const pseudoBody = JSON.stringify({ response: result.text, engine: result.engine }, null, 2);
             let displayBody = pseudoBody, matchCount = 0;
-
             if (pattern) {
                 try {
                     const rx = new RegExp(pattern, 'gi');
@@ -1025,7 +1031,12 @@
         }
     }
 
-    // --- NETWORK PROBE C ---
+    // =============================================
+    // NETWORK PROBE C — target handlers
+    // FREE group: no key needed.
+    // GEMINI group: throws if _oGateKey missing.
+    // CUSTOM: arbitrary GET, CORS-dependent.
+    // =============================================
     document.getElementById('probe-target').addEventListener('change', function () {
         document.getElementById('probe-custom-url').classList.toggle('hidden', this.value !== 'custom');
     });
@@ -1040,46 +1051,85 @@
         resultEl.classList.remove('hidden');
         dot.className = 'w-2 h-2 rounded-full bg-yellow-400 animate-pulse';
         statusText.innerText = 'Probing...';
+        statusText.className = 'text-[10px] mono text-yellow-400';
         latencyEl.innerText = '';
         bodyEl.textContent = '';
         const t0 = performance.now();
         try {
             let res, url;
+
             if (target === 'pollinations-ping') {
-                // Free keyless probe — always works
                 url = 'https://text.pollinations.ai/openai';
                 res = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ model: 'openai', messages: [{ role: 'user', content: 'ping' }], max_tokens: 5 })
                 });
+
+            } else if (target === 'pollinations-models') {
+                // Pollinations image models list — public, no key
+                url = 'https://image.pollinations.ai/models';
+                res = await fetch(url);
+
+            } else if (target === 'huggingface-ping') {
+                // HF Inference API — public rate-limited tier, no key
+                url = 'https://api-inference.huggingface.co/models/gpt2';
+                res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ inputs: 'ping', parameters: { max_new_tokens: 5 } })
+                });
+
+            } else if (target === 'cohere-ping') {
+                // Cohere trial — public endpoint, no key for structure check (returns 401 but proves endpoint live)
+                url = 'https://api.cohere.ai/v1/generate';
+                res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer trial' },
+                    body: JSON.stringify({ model: 'command', prompt: 'ping', max_tokens: 5 })
+                });
+
             } else if (target === 'gemini-models') {
                 if (!_oGateKey) throw new Error('Gemini key required — open ◈ to commit.');
                 url = `https://generativelanguage.googleapis.com/v1beta/models?key=${_oGateKey}`;
                 res = await fetch(url);
+
             } else if (target === 'gemini-ping') {
                 if (!_oGateKey) throw new Error('Gemini key required — open ◈ to commit.');
                 url = `https://generativelanguage.googleapis.com/v1beta/models/${TEXT_MODEL}:generateContent?key=${_oGateKey}`;
                 res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: 'ping' }] }] }) });
+
             } else {
                 url = document.getElementById('probe-custom-url').value.trim();
                 if (!url) throw new Error('Enter a URL');
                 res = await fetch(url);
             }
+
             const latency = Math.round(performance.now() - t0);
-            const data = await res.json();
             latencyEl.innerText = `${latency}ms`;
+
+            let data;
+            const ct = res.headers.get('content-type') || '';
+            if (ct.includes('application/json')) {
+                data = await res.json();
+            } else {
+                const txt = await res.text();
+                try { data = JSON.parse(txt); } catch { data = { raw: txt.substring(0, 500) }; }
+            }
+
             if (res.ok) {
                 dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
                 statusText.innerText = `HTTP ${res.status} — ONLINE`;
                 statusText.className = 'text-[10px] mono text-emerald-400';
             } else {
-                dot.className = 'w-2 h-2 rounded-full bg-red-400';
-                statusText.innerText = `HTTP ${res.status} — ERROR`;
-                statusText.className = 'text-[10px] mono text-red-400';
+                dot.className = 'w-2 h-2 rounded-full bg-orange-400';
+                statusText.innerText = `HTTP ${res.status} — ${res.statusText || 'ERROR'}`;
+                statusText.className = 'text-[10px] mono text-orange-400';
             }
+
             const keys = extractStructure(data);
             bodyEl.textContent = `STRUCTURE:\n${keys}\n\nRAW (first 2000 chars):\n${JSON.stringify(data, null, 2).substring(0, 2000)}`;
+
         } catch (e) {
             const latency = Math.round(performance.now() - t0);
             dot.className = 'w-2 h-2 rounded-full bg-red-400';
