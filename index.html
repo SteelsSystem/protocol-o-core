@@ -640,9 +640,13 @@
     // =============================================
     // ENGINE LAYER
     // apiRequest    — Gemini, throws if no key
-    // pollinationsRequest — free, keyless
+    // pollinations  — free, keyless
     // smart         — Gemini first → Pollinations fallback
     //                 returns { text, engine }
+    //
+    // UPGRADE 1: Pollinations max_tokens 512 → 2048
+    // UPGRADE 2: Gemini smart() adds generationConfig
+    //            maxOutputTokens: 8192 (model ceiling)
     // =============================================
     const _engine = {
         async apiRequest(payload) {
@@ -668,7 +672,7 @@
                         { role: 'user', content: prompt }
                     ],
                     temperature: 0.7,
-                    max_tokens: 512
+                    max_tokens: 2048
                 })
             });
             if (!res.ok) throw new Error(`Pollinations HTTP ${res.status}`);
@@ -679,7 +683,10 @@
         async smart(prompt, systemPrompt) {
             if (_key) {
                 try {
-                    const payload = { contents: [{ parts: [{ text: prompt }] }] };
+                    const payload = {
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: { maxOutputTokens: 8192 }
+                    };
                     if (systemPrompt) payload.systemInstruction = { parts: [{ text: systemPrompt }] };
                     const res = await _engine.apiRequest(payload);
                     return { text: res.candidates[0].content.parts[0].text.trim(), engine: 'Gemini · O-Gate' };
@@ -770,7 +777,6 @@
 
     // =============================================
     // FUNCTION LAYER — all use _engine.smart()
-    // Sub-functions are private, wired via addEventListener
     // =============================================
     const _fn = {
         async probe() {
@@ -870,7 +876,8 @@
                     rd.readAsDataURL(file);
                 });
                 const res = await _engine.apiRequest({
-                    contents: [{ parts: [{ inline_data: { mime_type: file.type, data: b64 } }, { text: 'Analyze for Protocol O compliance. Be concise.' }] }]
+                    contents: [{ parts: [{ inline_data: { mime_type: file.type, data: b64 } }, { text: 'Analyze for Protocol O compliance. Be concise.' }] }],
+                    generationConfig: { maxOutputTokens: 8192 }
                 });
                 result.innerText = '[Gemini · O-Gate] ' + res.candidates[0].content.parts[0].text;
             } catch (e) {
@@ -959,7 +966,7 @@
                     res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${_key}`);
                 } else if (target === 'gemini-ping') {
                     if (!_key) throw new Error('Gemini key required — open ◈ to commit.');
-                    res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${TEXT_MODEL}:generateContent?key=${_key}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: 'ping' }] }] }) });
+                    res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${TEXT_MODEL}:generateContent?key=${_key}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: 'ping' }] }], generationConfig: { maxOutputTokens: 16 } }) });
                 } else {
                     const url = document.getElementById('probe-custom-url').value.trim();
                     if (!url) throw new Error('Enter a URL');
@@ -1007,53 +1014,40 @@
     };
 
     // =============================================
-    // WIRE — all event listeners bound here, zero
-    // inline handlers remain in HTML
+    // WIRE
     // =============================================
     function _wire() {
-        // Gate sublayer
         document.getElementById('nav-gate-btn').addEventListener('click', _gate.open);
         document.getElementById('gate-close-btn').addEventListener('click', _gate.close);
         document.getElementById('gate-commit-btn').addEventListener('click', _gate.commit);
         document.getElementById('gate-purge-btn').addEventListener('click', _gate.purge);
         document.getElementById('gate-key-input').addEventListener('keydown', e => { if (e.key === 'Enter') _gate.commit(); });
 
-        // Certificate sublayer
         document.getElementById('cert-close-btn').addEventListener('click', _cert.close);
         document.getElementById('cert-dismiss-btn').addEventListener('click', _cert.close);
         document.getElementById('cert-download-btn').addEventListener('click', _cert.download);
         document.getElementById('cert-gen-btn').addEventListener('click', _cert.generate);
 
-        // Nav
         document.getElementById('nav-recalibrate-btn').addEventListener('click', () => location.reload());
 
-        // Probe
         document.getElementById('probe-btn').addEventListener('click', _fn.probe);
         document.getElementById('ai-query').addEventListener('keydown', e => { if (e.key === 'Enter') _fn.probe(); });
 
-        // Semantic analyzer
         document.getElementById('qa-btn').addEventListener('click', _fn.semanticAnalyze);
-
-        // Language matrix
         document.getElementById('multi-lang-btn').addEventListener('click', _fn.multiTranslate);
 
-        // Visual audit
         document.getElementById('c1-btn').addEventListener('click', () => document.getElementById('visual-audit-input').click());
         document.getElementById('visual-audit-input').addEventListener('change', function () { _fn.visualAudit(this.files[0]); });
 
-        // Body scanner
         document.getElementById('scanner-btn').addEventListener('click', _fn.bodyScanner);
 
-        // Network probe
         document.getElementById('probe-run-btn').addEventListener('click', _fn.networkProbe);
         document.getElementById('probe-target').addEventListener('change', function () {
             document.getElementById('probe-custom-url').classList.toggle('hidden', this.value !== 'custom');
         });
 
-        // Voice briefing
         document.getElementById('voice-btn').addEventListener('click', _fn.voiceBriefing);
 
-        // Global keyboard
         document.addEventListener('keydown', e => {
             if (e.ctrlKey && e.key === 'g') { e.preventDefault(); _gate.open(); }
             if (e.key === 'Escape') {
