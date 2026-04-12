@@ -23,10 +23,31 @@
         @keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
         .fade-transition { transition: opacity 0.4s ease, transform 0.4s ease; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
+        #key-panel { transition: all 0.3s ease; }
     </style>
 </head>
 <body class="antialiased">
 <div class="scanline"></div>
+
+<!-- O-GATE KEY PANEL -->
+<div id="key-panel" class="fixed bottom-6 right-6 z-50 glass p-4 rounded-2xl w-80 shadow-2xl border border-blue-500/20">
+    <div class="flex items-center justify-between mb-3">
+        <span class="mono text-[10px] uppercase tracking-widest text-blue-400 font-bold">⚙ O-Gate API Key</span>
+        <div id="key-status-dot" class="w-2 h-2 rounded-full bg-red-500"></div>
+    </div>
+    <div class="flex gap-2">
+        <input type="password" id="key-input" class="bg-black/60 border border-white/10 rounded-lg px-3 py-2 text-xs mono flex-1 focus:outline-none focus:border-blue-500" placeholder="AIza...">
+        <button onclick="saveKey()" class="bg-blue-600/30 hover:bg-blue-600/50 border border-blue-500/50 text-blue-300 px-3 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all">Set</button>
+    </div>
+    <div class="flex gap-2 mt-2">
+        <span id="key-label" class="text-[10px] mono text-slate-500 flex-1">Not set</span>
+        <button onclick="clearKey()" class="text-[10px] mono text-red-400/60 hover:text-red-400 transition-all">Clear</button>
+        <button onclick="togglePanel()" class="text-[10px] mono text-slate-500 hover:text-slate-300 transition-all">Hide</button>
+    </div>
+</div>
+
+<!-- PANEL TOGGLE (when hidden) -->
+<button id="key-panel-fab" onclick="togglePanel()" class="hidden fixed bottom-6 right-6 z-50 w-10 h-10 rounded-full glass border border-blue-500/30 flex items-center justify-center text-blue-400 hover:bg-blue-500/20 transition-all">⚙</button>
 
 <nav class="fixed top-0 w-full z-50 px-6 py-4 flex justify-between items-center glass">
     <div class="flex items-center gap-4">
@@ -43,20 +64,16 @@
 </nav>
 
 <section class="relative min-h-screen flex flex-col items-center justify-center pt-20">
-    <div class="absolute inset-0 opacity-10 pointer-events-none">
-        <div id="inner-space-plot"></div>
-    </div>
+    <div class="absolute inset-0 opacity-10 pointer-events-none"><div id="inner-space-plot"></div></div>
     <div class="relative z-10 text-center max-w-4xl px-6 w-full">
         <h1 class="text-7xl md:text-9xl font-900 tracking-tighter mb-4 opacity-90">FORW<span class="text-blue-500">ARD</span></h1>
         <div class="flex items-center justify-center gap-4 mb-8">
-            <span id="hero-subtitle" class="mono text-sm tracking-[0.5em] text-blue-400 uppercase fade-transition">Protokol O / Vĝomí Jádra</span>
+            <span id="hero-subtitle" class="mono text-sm tracking-[0.5em] text-blue-400 uppercase fade-transition">Protokol O / Vědomí Jádra</span>
         </div>
         <div class="glass p-1 rounded-2xl max-w-2xl mx-auto shadow-2xl">
             <div class="flex gap-2">
                 <input type="text" id="ai-query" class="bg-transparent flex-1 px-6 py-4 focus:outline-none text-sm mono fade-transition" placeholder="...">
-                <button onclick="askInnerMind()" id="probe-btn" class="bg-blue-600 hover:bg-blue-700 px-8 rounded-xl font-bold text-xs uppercase tracking-widest transition-all">
-                    <span id="probe-btn-text">Sonda ✨</span>
-                </button>
+                <button onclick="askInnerMind()" id="probe-btn" class="bg-blue-600 hover:bg-blue-700 px-8 rounded-xl font-bold text-xs uppercase tracking-widest transition-all"><span id="probe-btn-text">Sonda ✨</span></button>
             </div>
         </div>
         <div id="ai-response-container" class="hidden mt-6 glass p-6 rounded-2xl text-left max-w-2xl mx-auto border-blue-500/30">
@@ -69,7 +86,7 @@
 <main class="max-w-7xl mx-auto px-6 py-20">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-        <div class="lg:col-span-2 glass p-8 rounded-3xl relative overflow-hidden group">
+        <div class="lg:col-span-2 glass p-8 rounded-3xl">
             <h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><span class="text-emerald-500">01</span> <span id="c1-title">Vizuální Audit Dokumentů</span></h2>
             <p id="c1-desc" class="text-slate-400 text-sm mb-6 leading-relaxed">Analýza souladu dokumentů s etickými normami Protokolu O.</p>
             <div class="flex flex-col gap-4">
@@ -97,12 +114,10 @@
         <div class="lg:col-span-3 glass p-8 rounded-3xl">
             <h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><span class="text-purple-500">03</span> <span id="qa-title-text">Sémantický &amp; Codebase Analyzátor</span></h2>
             <textarea id="qa-input" rows="4" class="bg-black/40 border border-white/10 rounded-xl px-6 py-4 w-full text-sm focus:outline-none focus:border-purple-500 mono mb-4" placeholder="Vložte kód nebo dotaz..."></textarea>
-            <button onclick="processQA()" id="qa-btn" class="bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 border border-purple-600/50 px-8 py-4 rounded-xl font-bold text-xs uppercase tracking-widest w-full md:w-auto">
-                <span id="qa-btn-text">Analyzovat</span>
-            </button>
-            <div id="qa-result-container" class="hidden mt-6 p-6 rounded-2xl border border-white/5 bg-white/5 transition-all">
+            <button onclick="processQA()" id="qa-btn" class="bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 border border-purple-600/50 px-8 py-4 rounded-xl font-bold text-xs uppercase tracking-widest w-full md:w-auto"><span id="qa-btn-text">Analyzovat</span></button>
+            <div id="qa-result-container" class="hidden mt-6 p-6 rounded-2xl border border-white/5 bg-white/5">
                 <div class="flex items-center gap-3 border-b border-white/5 pb-4 mb-4">
-                    <span id="qa-status-label" class="text-[10px] mono uppercase text-slate-500 tracking-widest">Sémantický Vektor:</span>
+                    <span class="text-[10px] mono uppercase text-slate-500 tracking-widest">Sémantický Vektor:</span>
                     <span id="qa-status" class="text-[10px] mono font-bold px-3 py-1 rounded bg-slate-800 text-slate-400">...</span>
                 </div>
                 <div id="qa-loading" class="hidden py-4 text-center"><div class="ai-loading mx-auto"></div></div>
@@ -110,14 +125,12 @@
             </div>
         </div>
 
-        <div class="lg:col-span-3 glass p-8 rounded-3xl relative overflow-hidden group border-t border-teal-500/30">
+        <div class="lg:col-span-3 glass p-8 rounded-3xl border-t border-teal-500/30">
             <h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><span class="text-teal-500">04</span> <span id="loc-title-text">Globální Jazyková Matice</span></h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="flex flex-col gap-4">
                     <input type="text" id="multi-lang-input" class="bg-black/40 border border-white/10 rounded-xl px-6 py-4 text-sm focus:outline-none focus:border-teal-500 mono" placeholder="...">
-                    <button onclick="runMultiVectTranslation()" id="multi-lang-btn" class="bg-teal-600/20 hover:bg-teal-600/40 text-teal-300 border border-teal-600/50 px-8 py-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all">
-                        <span id="multi-lang-btn-text">Iniciovat Projekci</span>
-                    </button>
+                    <button onclick="runMultiVectTranslation()" id="multi-lang-btn" class="bg-teal-600/20 hover:bg-teal-600/40 text-teal-300 border border-teal-600/50 px-8 py-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all"><span id="multi-lang-btn-text">Iniciovat Projekci</span></button>
                 </div>
                 <div class="bg-black/40 border border-white/10 rounded-xl p-4 flex flex-col gap-2 min-h-[150px]" id="multi-lang-results">
                     <span id="loc-wait" class="text-[10px] mono uppercase text-slate-600 text-center mt-10 tracking-widest">Uzly v pohotovosti</span>
@@ -132,14 +145,57 @@
 </main>
 
 <script>
-    // --- CONFIG ---
-    // Replace empty string with your Gemini API key to enable AI features
-    const apiKey = "";
-    const TEXT_MODEL = "gemini-2.0-flash";
-    const TTS_MODEL = "gemini-2.5-flash-preview-tts";
+    // --- API KEY via localStorage (never committed to repo) ---
+    let apiKey = localStorage.getItem('o_gate_key') || '';
+    const TEXT_MODEL = 'gemini-2.0-flash';
+
+    function saveKey() {
+        const val = document.getElementById('key-input').value.trim();
+        if(!val) return;
+        localStorage.setItem('o_gate_key', val);
+        apiKey = val;
+        document.getElementById('key-input').value = '';
+        updateKeyStatus();
+    }
+
+    function clearKey() {
+        localStorage.removeItem('o_gate_key');
+        apiKey = '';
+        updateKeyStatus();
+    }
+
+    function updateKeyStatus() {
+        const dot = document.getElementById('key-status-dot');
+        const label = document.getElementById('key-label');
+        if(apiKey) {
+            dot.className = 'w-2 h-2 rounded-full bg-emerald-500';
+            label.innerText = 'Key active (' + apiKey.substring(0,6) + '...)';
+        } else {
+            dot.className = 'w-2 h-2 rounded-full bg-red-500';
+            label.innerText = 'Not set';
+        }
+    }
+
+    function togglePanel() {
+        const panel = document.getElementById('key-panel');
+        const fab = document.getElementById('key-panel-fab');
+        if(panel.classList.contains('hidden')) {
+            panel.classList.remove('hidden');
+            fab.classList.add('hidden');
+        } else {
+            panel.classList.add('hidden');
+            fab.classList.remove('hidden');
+        }
+    }
+
+    // Allow Enter key to save
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('key-input').addEventListener('keydown', e => { if(e.key==='Enter') saveKey(); });
+        updateKeyStatus();
+    });
 
     const appLocales = {
-        'cs': { id:'cs', flag:'🇨🇿', label:'CZ', navTitle:'Protocol O // Integrity Core', heroSub:'Protokol O / Vĝomí Jádra', probePlh:'Sondování sémantické hloubky...', probeBtn:'Sonda ✨', c1Title:'Vizuální Audit Dokumentů', c1Desc:'Nahrajte snímek pro vizuální analýzu souladu.', c1Btn:'Vybrat Dokument', c2Voice:'Hlasový Brífink', c2Gen:'Generovat Důkaz', qaTitle:'Sémantický & Codebase Analyzátor', qaPlh:'Vložte kód nebo dotaz...', qaBtn:'Analyzovat', locTitle:'Globální Jazyková Matice', locPlh:'Zadejte termín...', locBtn:'Iniciovat Projekci', locWait:'Uzly v pohotovosti', chartLabels:['Etika','Věda','Právo','Dopad'] },
+        'cs': { id:'cs', flag:'🇨🇿', label:'CZ', navTitle:'Protocol O // Integrity Core', heroSub:'Protokol O / Vědomí Jádra', probePlh:'Sondování sémantické hloubky...', probeBtn:'Sonda ✨', c1Title:'Vizuální Audit Dokumentů', c1Desc:'Nahrajte snímek pro vizuální analýzu souladu.', c1Btn:'Vybrat Dokument', c2Voice:'Hlasový Brífink', c2Gen:'Generovat Důkaz', qaTitle:'Sémantický & Codebase Analyzátor', qaPlh:'Vložte kód nebo dotaz...', qaBtn:'Analyzovat', locTitle:'Globální Jazyková Matice', locPlh:'Zadejte termín...', locBtn:'Iniciovat Projekci', locWait:'Uzly v pohotovosti', chartLabels:['Etika','Věda','Právo','Dopad'] },
         'en': { id:'en', flag:'🇬🇧', label:'EN', navTitle:'Protocol O // Integrity Core', heroSub:'Protocol O / Core Consciousness', probePlh:'Probing semantic depth...', probeBtn:'Probe ✨', c1Title:'Visual Document Audit', c1Desc:'Upload a snapshot for visual compliance analysis.', c1Btn:'Select Document', c2Voice:'Voice Briefing', c2Gen:'Generate Proof', qaTitle:'Semantic & Codebase Analyzer', qaPlh:'Paste code or query...', qaBtn:'Analyze', locTitle:'Global Linguistic Matrix', locPlh:'Enter term...', locBtn:'Initiate Projection', locWait:'Nodes on standby', chartLabels:['Ethics','Science','Legal','Impact'] }
     };
 
@@ -183,11 +239,11 @@
     }
 
     async function apiRequest(payload) {
-        if(!apiKey) { throw new Error('O-Gate: API key not configured. Add your Gemini key to enable AI features.'); }
+        if(!apiKey) throw new Error('O-Gate: Set your Gemini API key via the ⚙ panel (bottom right).');
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${TEXT_MODEL}:generateContent?key=${apiKey}`;
-        const response = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-        if(!response.ok) throw new Error(`O-Gate route failure: ${response.status}`);
-        return await response.json();
+        const res = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+        if(!res.ok) throw new Error(`O-Gate route failure: ${res.status}`);
+        return await res.json();
     }
 
     async function askInnerMind() {
@@ -196,9 +252,7 @@
         const container = document.getElementById('ai-response-container');
         const loader = document.getElementById('probe-loading');
         const responseEl = document.getElementById('ai-response');
-        container.classList.remove('hidden');
-        loader.classList.remove('hidden');
-        responseEl.innerText = '';
+        container.classList.remove('hidden'); loader.classList.remove('hidden'); responseEl.innerText='';
         try {
             const res = await apiRequest({ contents:[{parts:[{text:input}]}], systemInstruction:{parts:[{text:`You are Protocol O inner mind. Answer poetically and concisely in: ${activeAppLang.toUpperCase()}`}]} });
             responseEl.innerText = res.candidates[0].content.parts[0].text;
@@ -213,71 +267,63 @@
         const statusEl = document.getElementById('qa-status');
         const answerEl = document.getElementById('qa-answer');
         const loader = document.getElementById('qa-loading');
-        container.classList.remove('hidden');
-        loader.classList.remove('hidden');
-        answerEl.innerText = '';
-        const sys = `Jsi Protocol O Analyzer. Taguj výstup: [CODE_AUDIT], [RELATED] nebo [UNRELATED]. Odpovídej v jazyce uzlu: ${activeAppLang.toUpperCase()}.`;
+        container.classList.remove('hidden'); loader.classList.remove('hidden'); answerEl.innerText='';
         try {
-            const res = await apiRequest({ contents:[{parts:[{text:input}]}], systemInstruction:{parts:[{text:sys}]} });
+            const res = await apiRequest({ contents:[{parts:[{text:input}]}], systemInstruction:{parts:[{text:`Jsi Protocol O Analyzer. Taguj: [CODE_AUDIT] nebo [SEMANTIC]. Odpovídej: ${activeAppLang.toUpperCase()}.`}]} });
             const text = res.candidates[0].content.parts[0].text;
             loader.classList.add('hidden');
             if(text.includes('[CODE_AUDIT]')){ statusEl.innerText='CODEBASE AUDIT'; statusEl.className='text-[10px] mono font-bold px-3 py-1 rounded bg-blue-500/20 text-blue-400'; }
             else { statusEl.innerText='SEMANTIC SYNC'; statusEl.className='text-[10px] mono font-bold px-3 py-1 rounded bg-green-500/20 text-green-400'; }
-            answerEl.innerText = text.replace(/\[.*?\]/,'').trim();
+            answerEl.innerText = text.replace(/\[.*?\]/g,'').trim();
         } catch(e) { loader.classList.add('hidden'); statusEl.innerText='ERROR'; answerEl.innerText=e.message; }
     }
 
     async function runMultiVectTranslation() {
         const input = document.getElementById('multi-lang-input').value;
         const results = document.getElementById('multi-lang-results');
-        results.innerHTML = '<div class="ai-loading mx-auto mt-10"></div>';
+        results.innerHTML='<div class="ai-loading mx-auto mt-10"></div>';
         try {
-            const res = await apiRequest({ contents:[{parts:[{text:input}]}], systemInstruction:{parts:[{text:'Translate to EN, DE, FR, ES. Return ONLY JSON: {"EN":"...","DE":"...","FR":"...","ES":"..."}'}]} });
-            const data = JSON.parse(res.candidates[0].content.parts[0].text.replace(/```json|```/g,''));
-            results.innerHTML = '';
+            const res = await apiRequest({ contents:[{parts:[{text:input}]}], systemInstruction:{parts:[{text:'Translate to EN, DE, FR, ES. Return ONLY valid JSON: {"EN":"...","DE":"...","FR":"...","ES":"..."}'}]} });
+            const raw = res.candidates[0].content.parts[0].text.replace(/```json|```/g,'').trim();
+            const data = JSON.parse(raw);
+            results.innerHTML='';
             Object.entries(data).forEach(([lang,val]) => {
                 results.innerHTML += `<div class="p-2 border-b border-white/5 flex justify-between"><span class="text-[10px] mono text-teal-400">${lang}</span><span class="text-xs">${val}</span></div>`;
             });
-        } catch(e) { results.innerHTML = `<span class="text-red-500">${e.message}</span>`; }
+        } catch(e) { results.innerHTML=`<span class="text-red-400 text-xs">${e.message}</span>`; }
     }
 
     async function performVisualAudit(input) {
-        const file = input.files[0];
-        if(!file) return;
+        const file = input.files[0]; if(!file) return;
         const loader = document.getElementById('visual-audit-loading');
         const result = document.getElementById('visual-audit-result');
-        loader.classList.remove('hidden');
-        result.classList.add('hidden');
+        loader.classList.remove('hidden'); result.classList.add('hidden');
         try {
-            const b64 = await new Promise(resolve => { const r = new FileReader(); r.onload=e=>resolve(e.target.result.split(',')[1]); r.readAsDataURL(file); });
+            const b64 = await new Promise(resolve => { const r=new FileReader(); r.onload=e=>resolve(e.target.result.split(',')[1]); r.readAsDataURL(file); });
             const res = await apiRequest({ contents:[{parts:[{inline_data:{mime_type:file.type,data:b64}},{text:'Analyze this document image for Protocol O compliance. Be concise.'}]}] });
             result.innerText = res.candidates[0].content.parts[0].text;
         } catch(e) { result.innerText = e.message; }
-        loader.classList.add('hidden');
-        result.classList.remove('hidden');
+        loader.classList.add('hidden'); result.classList.remove('hidden');
     }
 
     function triggerVoiceBriefing() {
-        document.getElementById('tts-icon').innerText = '🔕';
-        setTimeout(() => { document.getElementById('tts-icon').innerText = '🔊'; }, 2000);
-        // TTS via Gemini requires server-side audio stream — connect Cloudflare Worker for full impl
+        document.getElementById('tts-icon').innerText='🔕';
+        setTimeout(()=>{ document.getElementById('tts-icon').innerText='🔊'; },2000);
         alert('O-Gate: Voice briefing requires server-side TTS. Connect Cloudflare Worker.');
     }
 
     function generateCertificate() {
         const ts = new Date().toISOString();
-        const cert = `PROTOCOL O INTEGRITY CERTIFICATE\n${'-'.repeat(40)}\nTimestamp: ${ts}\nNode: ${activeAppLang.toUpperCase()}\nStatus: ALIGNED\nEthics Score: 95 | Science: 80 | Legal: 85 | Impact: 90\n${'-'.repeat(40)}`;
-        const blob = new Blob([cert], {type:'text/plain'});
+        const cert = `PROTOCOL O INTEGRITY CERTIFICATE\n${'-'.repeat(40)}\nTimestamp: ${ts}\nNode: ${activeAppLang.toUpperCase()}\nStatus: ALIGNED\nEthics: 95 | Science: 80 | Legal: 85 | Impact: 90\n${'-'.repeat(40)}`;
         const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
+        a.href = URL.createObjectURL(new Blob([cert],{type:'text/plain'}));
         a.download = `protocol-o-cert-${Date.now()}.txt`;
         a.click();
     }
 
     function initInnerPlot() {
-        const n = 100;
-        const trace = { x:Array.from({length:n},()=>Math.random()*20), y:Array.from({length:n},()=>Math.random()*20), z:Array.from({length:n},()=>Math.random()*20), mode:'markers', type:'scatter3d', marker:{size:2,color:'#2563eb',opacity:0.5} };
-        Plotly.newPlot('inner-space-plot',[trace],{paper_bgcolor:'rgba(0,0,0,0)',plot_bgcolor:'rgba(0,0,0,0)',margin:{l:0,r:0,t:0,b:0},scene:{xaxis:{visible:false},yaxis:{visible:false},zaxis:{visible:false}}},{displayModeBar:false});
+        const n=100;
+        Plotly.newPlot('inner-space-plot',[{x:Array.from({length:n},()=>Math.random()*20),y:Array.from({length:n},()=>Math.random()*20),z:Array.from({length:n},()=>Math.random()*20),mode:'markers',type:'scatter3d',marker:{size:2,color:'#2563eb',opacity:0.5}}],{paper_bgcolor:'rgba(0,0,0,0)',plot_bgcolor:'rgba(0,0,0,0)',margin:{l:0,r:0,t:0,b:0},scene:{xaxis:{visible:false},yaxis:{visible:false},zaxis:{visible:false}}},{displayModeBar:false});
     }
 
     window.onload = () => {
@@ -285,10 +331,11 @@
         initLangSelector();
         ethicsChartInstance = new Chart(document.getElementById('ethicsChart'),{
             type:'bar',
-            data:{ labels:appLocales.cs.chartLabels, datasets:[{data:[95,80,85,90],backgroundColor:['#2563eb','#14b8a6','#f97316','#6366f1']}] },
-            options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{grid:{color:'rgba(255,255,255,0.05)'}}} }
+            data:{labels:appLocales.cs.chartLabels,datasets:[{data:[95,80,85,90],backgroundColor:['#2563eb','#14b8a6','#f97316','#6366f1']}]},
+            options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'rgba(255,255,255,0.05)'}}}}
         });
         setAppLang('cs');
+        updateKeyStatus();
     };
 
     function recalibrate() { location.reload(); }
