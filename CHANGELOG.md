@@ -5,6 +5,33 @@
 
 ---
 
+## [2026-04-12] SESSION — Audius API Reconnaissance
+
+### 🎵 RECON — Audius REST API Integration Candidate
+**status:** Confirmed live · Pending implementation signal
+
+- **Source:** https://docs.audius.co
+- **Type:** Fully keyless, permissionless REST API — same zero-gate model as Pollinations.
+- **Proposed integration point:** `_engine.audius(query)` — third provider in engine layer, no gate required, no key exposure.
+- **UI target:** Network Probe C (section 06) — new optgroup `── AUDIUS · KEYLESS ──` OR dedicated new sublayer function.
+
+#### Available API surface confirmed
+
+| Layer | Method | Notes |
+|---|---|---|
+| REST API | `GET` tracks / users / playlists | Keyless, permissionless |
+| JS SDK | `npx create-audius-app` | Full SDK, stream-native |
+| Auth | Log in with Audius | OAuth-style user identity |
+| Protocol layer | `docs.openaudio.org` | DDEX + storage + transaction — lower sublayer |
+
+#### Security model alignment
+- Zero key requirement → no forward hole risk.
+- Fits cleanly inside sealed IIFE as `_engine.audius()`.
+- No `localStorage`, no DOM serialization — volatile by default.
+- Implementation held pending explicit signal from architect.
+
+---
+
 ## [2026-04-12] SESSION — Security & Architecture Realignment
 
 ### 🔒 SECURITY — API Key Forward Hole Eliminated
@@ -74,4 +101,4 @@
 
 ---
 
-*Protocol O — externally aligned. Last update: 2026-04-12T07:31 CEST*
+*Protocol O — externally aligned. Last update: 2026-04-12T08:59 CEST*
