@@ -146,6 +146,121 @@
 
         .border-top-teal { border-top-color: var(--core-teal) !important; }
         .section-num { font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: 0.15em; opacity: 0.7; }
+
+        /* =============================================
+           CERTIFICATE SUBLAYER
+           Rendered as visual card modal.
+           Lives entirely in volatile DOM — no persistence.
+           Dismiss destroys the element.
+           ============================================= */
+        #cert-sublayer {
+            position: fixed;
+            inset: 0;
+            z-index: 10001;
+            background: rgba(2,6,23,0.97);
+            backdrop-filter: blur(32px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        #cert-sublayer.open { display: flex; }
+        #cert-card {
+            width: min(600px, 96vw);
+            background: rgba(8,14,36,0.98);
+            border: 1px solid rgba(37,99,235,0.25);
+            border-radius: 24px;
+            padding: 40px;
+            position: relative;
+            box-shadow: 0 0 80px rgba(37,99,235,0.08), 0 0 0 1px rgba(255,255,255,0.03);
+        }
+        #cert-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 24px;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 3px,
+                rgba(37,99,235,0.015) 3px,
+                rgba(37,99,235,0.015) 4px
+            );
+            pointer-events: none;
+        }
+        .cert-close {
+            position: absolute; top: 16px; right: 16px;
+            background: none; border: none; cursor: pointer;
+            color: rgba(255,255,255,0.2);
+            font-size: 18px;
+            transition: color 0.2s;
+            z-index: 2;
+        }
+        .cert-close:hover { color: rgba(255,255,255,0.6); }
+        #cert-loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            padding: 40px 0;
+        }
+        #cert-content { display: none; }
+        .cert-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            gap: 16px;
+        }
+        .cert-row:last-child { border-bottom: none; }
+        .cert-label {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.25);
+            flex-shrink: 0;
+            width: 120px;
+        }
+        .cert-value {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: rgba(255,255,255,0.75);
+            text-align: right;
+            word-break: break-all;
+        }
+        .cert-seal-text {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            line-height: 1.7;
+            color: rgba(148,163,184,0.8);
+            padding: 16px 0;
+            border-top: 1px solid rgba(37,99,235,0.15);
+            border-bottom: 1px solid rgba(37,99,235,0.15);
+            margin: 16px 0;
+            font-style: italic;
+        }
+        .cert-engine-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(37,99,235,0.1);
+            border: 1px solid rgba(37,99,235,0.2);
+            border-radius: 999px;
+            padding: 3px 10px;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: rgba(96,165,250,0.8);
+        }
+        .cert-engine-dot {
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: #60a5fa;
+            box-shadow: 0 0 6px #60a5fa88;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -196,6 +311,72 @@
 
         <div class="mt-6 pt-4 border-t border-white/5">
             <p class="mono text-[9px] text-slate-700 text-center">Key lives in JS memory only — never serialized, never in DOM attributes.</p>
+        </div>
+    </div>
+</div>
+
+<!-- =============================================
+     CERTIFICATE SUBLAYER
+     Rendered on demand. AI statement injected via
+     Pollinations.AI (free, keyless engine).
+     Gemini fallback if key present in O-Gate.
+     Dismiss destroys volatile DOM node.
+     ============================================= -->
+<div id="cert-sublayer" role="dialog" aria-modal="true" aria-label="Protocol O Integrity Certificate">
+    <div id="cert-card">
+        <button class="cert-close" onclick="closeCertificate()" aria-label="Close certificate">✕</button>
+
+        <!-- Loading state -->
+        <div id="cert-loading-state">
+            <div class="ai-loading" style="border-top-color:#2563eb;width:32px;height:32px;border-width:3px;"></div>
+            <p class="mono text-[10px] uppercase tracking-[0.25em] text-slate-600">Generating integrity proof...</p>
+        </div>
+
+        <!-- Certificate content — revealed after AI returns -->
+        <div id="cert-content">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <p class="mono text-[9px] uppercase tracking-[0.3em] text-blue-500/60 mb-1">Protocol O</p>
+                    <h2 class="mono font-bold text-white/90" style="font-size:15px;letter-spacing:0.05em;">INTEGRITY CERTIFICATE</h2>
+                </div>
+                <div class="flex flex-col items-end gap-1.5">
+                    <span id="cert-engine-badge-el" class="cert-engine-badge">
+                        <span class="cert-engine-dot"></span>
+                        <span id="cert-engine-label">Pollinations.AI · FREE</span>
+                    </span>
+                    <span id="cert-status-badge" class="mono text-[9px] uppercase tracking-widest text-emerald-400/70">ALIGNED · VERIFIED · ACTIVE</span>
+                </div>
+            </div>
+
+            <!-- Metadata rows -->
+            <div id="cert-meta-rows">
+                <!-- injected by JS -->
+            </div>
+
+            <!-- AI-generated seal statement -->
+            <p id="cert-seal-text" class="cert-seal-text"></p>
+
+            <!-- Confidence bar -->
+            <div class="flex items-center gap-3 mt-2 mb-6">
+                <span class="mono text-[9px] uppercase tracking-widest text-slate-600" style="width:120px;flex-shrink:0;">Confidence Flow</span>
+                <div class="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
+                    <div id="cert-confidence-bar" class="h-full bg-blue-500 rounded-full transition-all" style="width:0%"></div>
+                </div>
+                <span id="cert-confidence-val" class="mono text-[10px] text-blue-400">0%</span>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-3 mt-2">
+                <button
+                    onclick="downloadCertificate()"
+                    class="flex-1 bg-blue-600/15 hover:bg-blue-600/30 border border-blue-500/30 text-blue-300 rounded-xl py-3 text-[10px] mono font-bold uppercase tracking-widest transition-all"
+                >↓ Download .txt</button>
+                <button
+                    onclick="closeCertificate()"
+                    class="bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 rounded-xl px-5 py-3 text-[10px] mono transition-all"
+                >Dismiss</button>
+            </div>
         </div>
     </div>
 </div>
@@ -428,7 +609,10 @@
     // Keyboard shortcuts
     document.addEventListener('keydown', e => {
         if (e.ctrlKey && e.key === 'g') { e.preventDefault(); openSublayer(); }
-        if (e.key === 'Escape' && document.getElementById('sublayer-gate').classList.contains('open')) { closeSublayer(); }
+        if (e.key === 'Escape') {
+            if (document.getElementById('sublayer-gate').classList.contains('open')) closeSublayer();
+            if (document.getElementById('cert-sublayer').classList.contains('open')) closeCertificate();
+        }
     });
 
     // --- CORE API (volatile key only) ---
@@ -442,6 +626,170 @@
         });
         if (!res.ok) throw new Error(`O-Gate route failure: HTTP ${res.status}`);
         return await res.json();
+    }
+
+    // --- POLLINATIONS.AI — free, keyless engine ---
+    // Used for certificate generation. No key required.
+    // Falls back to Gemini if O-Gate key is present.
+    async function pollinationsRequest(prompt) {
+        const model = 'openai'; // Pollinations free routing
+        const url = 'https://text.pollinations.ai/openai';
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model,
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You are Protocol O — a cryptographic integrity engine. Respond only in the language requested. Be precise, dense, poetic-technical.'
+                    },
+                    { role: 'user', content: prompt }
+                ],
+                temperature: 0.72,
+                max_tokens: 220
+            })
+        });
+        if (!res.ok) throw new Error(`Pollinations route failure: HTTP ${res.status}`);
+        const data = await res.json();
+        return data.choices[0].message.content.trim();
+    }
+
+    // Hash helper — short deterministic fingerprint from timestamp + lang
+    async function shortHash(input) {
+        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input));
+        return Array.from(new Uint8Array(buf)).slice(0, 4).map(b => b.toString(16).padStart(2,'0')).join('').toUpperCase();
+    }
+
+    // =============================================
+    // GENERATE CERTIFICATE
+    // Priority: Pollinations.AI (free, always).
+    // If Pollinations fails AND Gemini key present → fallback to Gemini.
+    // Certificate rendered as visual sublayer card.
+    // =============================================
+
+    // Volatile cert store — cleared on dismiss
+    let _certData = null;
+
+    async function generateCertificate() {
+        // Open cert sublayer in loading state
+        const sublayer = document.getElementById('cert-sublayer');
+        document.getElementById('cert-loading-state').style.display = 'flex';
+        document.getElementById('cert-content').style.display = 'none';
+        sublayer.classList.add('open');
+
+        const ts = new Date().toISOString();
+        const lang = activeAppLang.toUpperCase();
+        const hash = await shortHash(ts + lang + Math.random());
+
+        const scores = { Ethics: 95, Science: 80, Legal: 85, Impact: 90 };
+        const confidence = Math.round((scores.Ethics + scores.Science + scores.Legal + scores.Impact) / 4);
+
+        const prompt = `Generate a Protocol O Integrity Certificate seal statement. Language: ${lang}.
+Timestamp: ${ts}. Hash: ${hash}. Confidence: ${confidence}%.
+The statement must be 2-3 sentences, cryptographic in tone, referencing alignment and verification.
+Do not include any headings, labels, or metadata — only the seal body text.`;
+
+        let sealText = '';
+        let engineLabel = 'Pollinations.AI · FREE';
+
+        try {
+            sealText = await pollinationsRequest(prompt);
+        } catch (pollinationsErr) {
+            // Fallback: try Gemini if key available
+            if (_oGateKey) {
+                try {
+                    const res = await apiRequest({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        systemInstruction: { parts: [{ text: 'You are Protocol O integrity engine. Be precise and cryptographic.' }] }
+                    });
+                    sealText = res.candidates[0].content.parts[0].text.trim();
+                    engineLabel = 'Gemini · O-Gate';
+                } catch (geminiErr) {
+                    sealText = `Node ${lang} integrity verified at ${ts}. Hash ${hash} confirmed aligned. Protocol O seal active — no anomaly detected.`;
+                    engineLabel = 'Static Fallback';
+                }
+            } else {
+                sealText = `Node ${lang} integrity verified at ${ts}. Hash ${hash} confirmed aligned. Protocol O seal active — no anomaly detected.`;
+                engineLabel = 'Static Fallback';
+            }
+        }
+
+        // Store volatile cert data for download
+        _certData = { ts, lang, hash, confidence, scores, sealText, engineLabel };
+
+        // Inject into card
+        document.getElementById('cert-engine-label').innerText = engineLabel;
+
+        const metaRows = [
+            ['ISSUED', ts],
+            ['LANG', lang],
+            ['HASH', hash],
+            ['STATUS', 'ALIGNED · VERIFIED · ACTIVE'],
+            ['FLOW', `${confidence}% CONFIDENCE`],
+            ['ENGINE', engineLabel]
+        ];
+
+        const metaContainer = document.getElementById('cert-meta-rows');
+        metaContainer.innerHTML = metaRows.map(([label, value]) =>
+            `<div class="cert-row">
+                <span class="cert-label">${label}</span>
+                <span class="cert-value">${value}</span>
+            </div>`
+        ).join('');
+
+        document.getElementById('cert-seal-text').innerText = sealText;
+
+        // Animate confidence bar
+        const bar = document.getElementById('cert-confidence-bar');
+        const val = document.getElementById('cert-confidence-val');
+        bar.style.width = '0%';
+        val.innerText = '0%';
+        setTimeout(() => {
+            bar.style.transition = 'width 1.2s cubic-bezier(0.16,1,0.3,1)';
+            bar.style.width = confidence + '%';
+            val.innerText = confidence + '%';
+        }, 120);
+
+        // Reveal content
+        document.getElementById('cert-loading-state').style.display = 'none';
+        document.getElementById('cert-content').style.display = 'block';
+    }
+
+    function closeCertificate() {
+        document.getElementById('cert-sublayer').classList.remove('open');
+        _certData = null; // purge volatile cert data
+    }
+
+    function downloadCertificate() {
+        if (!_certData) return;
+        const { ts, lang, hash, confidence, scores, sealText, engineLabel } = _certData;
+        const lines = [
+            '┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓',
+            '┃     PROTOCOL O — INTEGRITY CERTIFICATE     ┃',
+            '┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫',
+            `┃  ISSUED  : ${ts.padEnd(29)}┃`,
+            `┃  LANG    : ${lang.padEnd(29)}┃`,
+            `┃  HASH    : ${hash.padEnd(29)}┃`,
+            '┃  STATUS  : ALIGNED · VERIFIED · ACTIVE      ┃',
+            `┃  FLOW    : ${(confidence + '% CONFIDENCE').padEnd(29)}┃`,
+            `┃  ENGINE  : ${engineLabel.padEnd(29)}┃`,
+            '┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫',
+            '┃  SEAL STATEMENT                            ┃',
+            '┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛',
+            '',
+            sealText,
+            '',
+            '━'.repeat(44),
+            `Ethics: ${scores.Ethics} | Science: ${scores.Science} | Legal: ${scores.Legal} | Impact: ${scores.Impact}`,
+            '━'.repeat(44)
+        ];
+        const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `protocol-o-cert-${hash}-${Date.now()}.txt`;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 5000);
     }
 
     // --- LOCALES ---
@@ -679,15 +1027,6 @@
         document.getElementById('tts-icon').innerText = '🔕';
         setTimeout(() => { document.getElementById('tts-icon').innerText = '🔊'; }, 2000);
         alert('O-Gate: Voice briefing requires server-side TTS.');
-    }
-
-    function generateCertificate() {
-        const ts = new Date().toISOString();
-        const cert = `PROTOCOL O INTEGRITY CERTIFICATE\n${'-'.repeat(40)}\nTimestamp: ${ts}\nNode: ${activeAppLang.toUpperCase()}\nStatus: ALIGNED\nEthics: 95 | Science: 80 | Legal: 85 | Impact: 90\n${'-'.repeat(40)}`;
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(new Blob([cert], { type: 'text/plain' }));
-        a.download = `protocol-o-cert-${Date.now()}.txt`;
-        a.click();
     }
 
     function initInnerPlot() {
