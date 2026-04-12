@@ -344,7 +344,6 @@
                 statusText.innerText = `HTTP ${status} — ERROR`;
                 statusText.className = 'text-[10px] mono text-red-400';
             }
-            // Extract & display network structure
             const keys = extractStructure(data);
             bodyEl.textContent = `STRUCTURE:\n${keys}\n\nRAW (first 2000 chars):\n${JSON.stringify(data,null,2).substring(0,2000)}`;
         } catch(e) {
@@ -426,13 +425,27 @@
         const n=100;
         Plotly.newPlot('inner-space-plot',[{x:Array.from({length:n},()=>Math.random()*20),y:Array.from({length:n},()=>Math.random()*20),z:Array.from({length:n},()=>Math.random()*20),mode:'markers',type:'scatter3d',marker:{size:2,color:'#2563eb',opacity:0.5}}],{paper_bgcolor:'rgba(0,0,0,0)',plot_bgcolor:'rgba(0,0,0,0)',margin:{l:0,r:0,t:0,b:0},scene:{xaxis:{visible:false},yaxis:{visible:false},zaxis:{visible:false}}},{displayModeBar:false});
     }
-    window.onload=()=>{
-        initInnerPlot(); initLangSelector();
-        ethicsChartInstance=new Chart(document.getElementById('ethicsChart'),{type:'bar',data:{labels:appLocales.cs.chartLabels,datasets:[{data:[95,80,85,90],backgroundColor:['#2563eb','#14b8a6','#f97316','#6366f1']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'rgba(255,255,255,0.05)'}}}}});
-        setAppLang('cs'); updateKeyStatus();
-        document.getElementById('key-input').addEventListener('keydown',e=>{if(e.key==='Enter')saveKey();});
+    window.onload = () => {
+        initInnerPlot();
+        initLangSelector();
+        ethicsChartInstance = new Chart(document.getElementById('ethicsChart'), {
+            type: 'bar',
+            data: {
+                labels: appLocales.cs.chartLabels,
+                datasets: [{ data: [95, 80, 85, 90], backgroundColor: ['#2563eb', '#14b8a6', '#f97316', '#6366f1'] }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' } } }
+            }
+        });
+        setAppLang('cs');
+        updateKeyStatus();
+        document.getElementById('key-input').addEventListener('keydown', e => { if (e.key === 'Enter') saveKey(); });
     };
-    function recalibrate(){location.reload();}
+    function recalibrate() { location.reload(); }
 </script>
 </body>
 </html>
