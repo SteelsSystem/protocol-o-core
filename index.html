@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="cs" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,64 +7,229 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+    <link href="https://api.fontshare.com/v2/css?f[]=jet-brains-mono@400,700&f[]=satoshi@400,700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Inter:wght@100;400;900&display=swap');
-        :root { --core-blue: #2563eb; --core-teal: #14b8a6; --core-dark: #020617; }
-        body { background-color: var(--core-dark); color: #f8fafc; font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        .glass { background: rgba(15,23,42,0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .gate-pulse { animation: pulse-ring 4s cubic-bezier(0.4,0,0.6,1) infinite; }
-        @keyframes pulse-ring { 0%{transform:scale(0.95);opacity:0.5} 50%{transform:scale(1.05);opacity:0.8} 100%{transform:scale(0.95);opacity:0.5} }
-        .scanline { width:100%;height:2px;background:rgba(37,99,235,0.2);position:absolute;animation:scan 8s linear infinite;z-index:9999;pointer-events:none; }
+        :root {
+            --core-blue: #2563eb;
+            --core-teal: #14b8a6;
+            --core-dark: #020617;
+            --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+            --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+            --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+            --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+            --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+            --text-hero: clamp(3rem, 0.5rem + 7vw, 8rem);
+            --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem;
+            --space-6: 1.5rem; --space-8: 2rem; --space-12: 3rem;
+            --radius-md: 0.5rem; --radius-lg: 0.75rem; --radius-xl: 1rem;
+            --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+            --font-body: 'Satoshi', 'Inter', sans-serif;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+        body {
+            background-color: var(--core-dark);
+            color: #f8fafc;
+            font-family: var(--font-body);
+            font-size: var(--text-base);
+            overflow-x: hidden;
+            min-height: 100dvh;
+        }
+        .mono { font-family: var(--font-mono); }
+
+        /* GLASS */
+        .glass {
+            background: rgba(15,23,42,0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        /* SCANLINE */
+        .scanline {
+            width: 100%; height: 2px;
+            background: rgba(37,99,235,0.15);
+            position: fixed; top: 0; left: 0;
+            animation: scan 10s linear infinite;
+            z-index: 9999; pointer-events: none;
+        }
         @keyframes scan { 0%{top:0%} 100%{top:100%} }
-        #inner-space-plot { height:500px;width:100%; }
-        .ai-loading { width:24px;height:24px;border:2px solid rgba(255,255,255,0.1);border-top:2px solid var(--core-blue);border-radius:50%;animation:spin 1s linear infinite; }
-        .border-top-teal { border-top-color: var(--core-teal) !important; }
+
+        /* GATE PULSE */
+        .gate-pulse { animation: pulse-ring 4s cubic-bezier(0.4,0,0.6,1) infinite; }
+        @keyframes pulse-ring {
+            0%{transform:scale(0.95);opacity:0.5}
+            50%{transform:scale(1.05);opacity:0.8}
+            100%{transform:scale(0.95);opacity:0.5}
+        }
+
+        /* SPINNER */
+        .ai-loading {
+            width: 24px; height: 24px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-top: 2px solid var(--core-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
         @keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+
+        /* FADE TRANSITION */
         .fade-transition { transition: opacity 0.4s ease, transform 0.4s ease; }
+
+        /* SCROLLBAR HIDE */
         .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .highlight-match { background: rgba(37,99,235,0.3); border-radius: 2px; padding: 0 2px; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* INNER PLOT */
+        #inner-space-plot { height: 500px; width: 100%; }
+
+        /* =============================================
+           SUBLAYER GATE — stealth key management
+           Accessed via nav ◈ trigger or Ctrl+G
+           Key lives ONLY in volatile JS memory.
+           Never written to DOM, localStorage, or URL.
+           ============================================= */
+        #sublayer-gate {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background: rgba(2,6,23,0.96);
+            backdrop-filter: blur(24px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        #sublayer-gate.open { display: flex; }
+        #sublayer-gate .gate-inner {
+            width: min(420px, 90vw);
+            background: rgba(15,23,42,0.9);
+            border: 1px solid rgba(37,99,235,0.3);
+            border-radius: 20px;
+            padding: var(--space-8);
+            position: relative;
+        }
+        #sublayer-gate .gate-close {
+            position: absolute; top: 16px; right: 16px;
+            background: none; border: none; cursor: pointer;
+            color: rgba(255,255,255,0.3);
+            font-size: 18px;
+            transition: color 0.2s;
+        }
+        #sublayer-gate .gate-close:hover { color: rgba(255,255,255,0.7); }
+
+        /* Key input — masked, no autofill hints */
+        #gate-key-input {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius-md);
+            padding: 10px 14px;
+            color: #f8fafc;
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+            width: 100%;
+            letter-spacing: 0.15em;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        #gate-key-input:focus { border-color: rgba(37,99,235,0.5); }
+
+        /* STATUS ORB — minimal 6px dot in nav only */
+        #gate-status-orb {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: #ef4444;
+            display: inline-block;
+            margin-right: 6px;
+            transition: background 0.4s;
+        }
+        #gate-status-orb.active { background: #10b981; box-shadow: 0 0 6px #10b98166; }
+
+        .border-top-teal { border-top-color: var(--core-teal) !important; }
+        .section-num { font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: 0.15em; opacity: 0.7; }
     </style>
 </head>
 <body class="antialiased">
 <div class="scanline"></div>
 
-<!-- O-GATE KEY PANEL -->
-<div id="key-panel" class="fixed bottom-6 right-6 z-50 glass p-4 rounded-2xl w-80 shadow-2xl border border-blue-500/20">
-    <div class="flex items-center justify-between mb-3">
-        <span class="mono text-[10px] uppercase tracking-widest text-blue-400 font-bold">⚙ O-Gate API Key</span>
-        <div id="key-status-dot" class="w-2 h-2 rounded-full bg-red-500"></div>
-    </div>
-    <div class="flex gap-2">
-        <input type="password" id="key-input" class="bg-black/60 border border-white/10 rounded-lg px-3 py-2 text-xs mono flex-1 focus:outline-none focus:border-blue-500" placeholder="AIza...">
-        <button onclick="saveKey()" class="bg-blue-600/30 hover:bg-blue-600/50 border border-blue-500/50 text-blue-300 px-3 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all">Set</button>
-    </div>
-    <div class="flex gap-2 mt-2">
-        <span id="key-label" class="text-[10px] mono text-slate-500 flex-1">Not set</span>
-        <button onclick="clearKey()" class="text-[10px] mono text-red-400/60 hover:text-red-400 transition-all">Clear</button>
-        <button onclick="togglePanel()" class="text-[10px] mono text-slate-500 hover:text-slate-300 transition-all">Hide</button>
+<!-- =============================================
+     SUBLAYER GATE — fully hidden API credential layer
+     Surface: ◈ nav button or Ctrl+G keyboard shortcut
+     ============================================= -->
+<div id="sublayer-gate" role="dialog" aria-modal="true" aria-label="O-Gate Sublayer">
+    <div class="gate-inner">
+        <button class="gate-close" onclick="closeSublayer()" aria-label="Close gate">✕</button>
+        <div class="flex items-center gap-3 mb-6">
+            <div class="w-8 h-8 rounded-full border border-blue-500/40 flex items-center justify-center">
+                <div class="w-3 h-3 rounded-full bg-blue-500 gate-pulse"></div>
+            </div>
+            <div>
+                <p class="mono text-[10px] uppercase tracking-[0.2em] text-blue-400 font-bold">O-Gate // Sublayer Access</p>
+                <p class="mono text-[9px] text-slate-600 mt-0.5">Credentials stored in volatile memory only</p>
+            </div>
+        </div>
+
+        <label class="mono text-[10px] uppercase tracking-widest text-slate-500 mb-2 block">Gemini API Key</label>
+        <input
+            type="password"
+            id="gate-key-input"
+            placeholder="AIza..."
+            autocomplete="off"
+            autocorrect="off"
+            spellcheck="false"
+            data-lpignore="true"
+            onkeydown="if(event.key==='Enter') commitKey()"
+        >
+        <div class="flex gap-2 mt-3">
+            <button
+                onclick="commitKey()"
+                class="flex-1 bg-blue-600/20 hover:bg-blue-600/40 border border-blue-500/40 text-blue-300 rounded-lg py-2 text-[10px] mono font-bold uppercase tracking-widest transition-all"
+            >Commit Key</button>
+            <button
+                onclick="purgeKey()"
+                class="bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400/70 hover:text-red-400 rounded-lg px-4 py-2 text-[10px] mono transition-all"
+            >Purge</button>
+        </div>
+
+        <div id="gate-feedback" class="mt-4 hidden">
+            <p id="gate-feedback-text" class="mono text-[10px] text-center tracking-widest"></p>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-white/5">
+            <p class="mono text-[9px] text-slate-700 text-center">Key lives in JS memory only — never serialized, never in DOM attributes.</p>
+        </div>
     </div>
 </div>
-<button id="key-panel-fab" onclick="togglePanel()" class="hidden fixed bottom-6 right-6 z-50 w-10 h-10 rounded-full glass border border-blue-500/30 flex items-center justify-center text-blue-400 hover:bg-blue-500/20 transition-all">⚙</button>
 
+<!-- NAV -->
 <nav class="fixed top-0 w-full z-50 px-6 py-4 flex justify-between items-center glass">
     <div class="flex items-center gap-4">
         <div class="w-3 h-3 rounded-full bg-blue-500 gate-pulse shadow-[0_0_15px_#2563eb]"></div>
         <span class="mono text-xs font-bold tracking-[0.2em] uppercase text-blue-400 fade-transition" id="nav-title">Protocol O // Integrity Core ✨</span>
     </div>
-    <div class="flex gap-6 items-center flex-wrap justify-end">
+    <div class="flex gap-4 items-center flex-wrap justify-end">
         <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
             <span class="text-[10px] mono text-purple-400 uppercase font-bold tracking-widest flex-shrink-0">Aktivní Uzel:</span>
             <div id="lang-selector-container" class="flex gap-2 flex-nowrap"></div>
         </div>
-        <button onclick="recalibrate()" class="px-4 py-1 text-[10px] border border-blue-500/50 rounded-full hover:bg-blue-500/20 transition-all uppercase font-bold tracking-widest">Rekalibrace</button>
+        <!-- Sublayer trigger: minimal orb, no label that reveals function -->
+        <button
+            onclick="openSublayer()"
+            title="O-Gate Sublayer (Ctrl+G)"
+            aria-label="Open O-Gate credential sublayer"
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/5 hover:border-blue-500/30 transition-all"
+        >
+            <span id="gate-status-orb"></span>
+            <span class="mono text-[9px] uppercase tracking-widest text-slate-600 hover:text-slate-400 transition-colors">◈</span>
+        </button>
+        <button onclick="recalibrate()" class="px-4 py-1 text-[10px] border border-blue-500/50 rounded-full hover:bg-blue-500/20 transition-all uppercase font-bold tracking-widest mono">Rekalibrace</button>
     </div>
 </nav>
 
+<!-- HERO -->
 <section class="relative min-h-screen flex flex-col items-center justify-center pt-20">
     <div class="absolute inset-0 opacity-10 pointer-events-none"><div id="inner-space-plot"></div></div>
     <div class="relative z-10 text-center max-w-4xl px-6 w-full">
-        <h1 class="text-7xl md:text-9xl font-900 tracking-tighter mb-4 opacity-90">FORW<span class="text-blue-500">ARD</span></h1>
+        <h1 class="font-bold tracking-tighter mb-4 opacity-90" style="font-size:var(--text-hero)">FORW<span class="text-blue-500">ARD</span></h1>
         <div class="flex items-center justify-center gap-4 mb-8">
             <span id="hero-subtitle" class="mono text-sm tracking-[0.5em] text-blue-400 uppercase fade-transition">Protokol O / Vědomí Jádra</span>
         </div>
@@ -76,7 +241,7 @@
         </div>
         <div id="ai-response-container" class="hidden mt-6 glass p-6 rounded-2xl text-left max-w-2xl mx-auto border-blue-500/30">
             <div id="probe-loading" class="hidden py-2"><div class="ai-loading mx-auto"></div></div>
-            <p id="ai-response" class="text-sm leading-relaxed text-blue-100 italic"></p>
+            <p id="ai-response" class="text-sm leading-relaxed text-blue-100 italic mono"></p>
         </div>
     </div>
 </section>
@@ -86,53 +251,67 @@
 
         <!-- 01 VISUAL AUDIT -->
         <div class="lg:col-span-2 glass p-8 rounded-3xl">
-            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><span class="text-emerald-500">01</span> <span id="c1-title">Vizuální Audit Dokumentů</span></h2>
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                <span class="section-num text-emerald-500">01</span>
+                <span id="c1-title">Vizuální Audit Dokumentů</span>
+            </h2>
             <p id="c1-desc" class="text-slate-400 text-sm mb-6 leading-relaxed">Analýza souladu dokumentů s etickými normami Protokolu O.</p>
             <div class="flex flex-col gap-4">
                 <div class="flex items-center gap-4">
                     <input type="file" id="visual-audit-input" accept="image/*" class="hidden" onchange="performVisualAudit(this)">
-                    <button onclick="document.getElementById('visual-audit-input').click()" id="c1-btn" class="bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 border border-emerald-600/50 px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest">Vybrat Dokument</button>
+                    <button onclick="document.getElementById('visual-audit-input').click()" id="c1-btn" class="bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 border border-emerald-600/50 px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest mono transition-all">Vybrat Dokument</button>
                     <div id="visual-audit-loading" class="hidden"><div class="ai-loading border-top-teal"></div></div>
                 </div>
-                <div id="visual-audit-result" class="hidden glass p-4 rounded-xl text-xs text-slate-300 font-mono">...</div>
+                <div id="visual-audit-result" class="hidden glass p-4 rounded-xl text-xs text-slate-300 mono">...</div>
             </div>
         </div>
 
         <!-- 02 O-GATE STATUS -->
         <div class="glass p-8 rounded-3xl flex flex-col justify-between">
-            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><span class="text-orange-500">02</span> O-Gate Status</h2>
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                <span class="section-num text-orange-500">02</span>
+                O-Gate Status
+            </h2>
             <div class="flex flex-col gap-2">
                 <button onclick="triggerVoiceBriefing()" class="w-full bg-white/5 hover:bg-white/10 py-4 rounded-xl border border-white/10 transition-all flex items-center justify-center gap-3">
-                    <span id="tts-icon">🔊</span> <span id="c2-voice" class="text-[10px] font-bold uppercase tracking-widest">Hlasový Brífink</span>
+                    <span id="tts-icon">🔊</span>
+                    <span id="c2-voice" class="text-[10px] font-bold uppercase tracking-widest mono">Hlasový Brífink</span>
                 </button>
                 <button onclick="generateCertificate()" class="w-full bg-blue-600/10 hover:bg-blue-600/20 py-4 rounded-xl border border-blue-600/30 transition-all flex items-center justify-center gap-3">
-                    <span>🎨</span> <span id="c2-gen" class="text-[10px] font-bold uppercase tracking-widest">Generovat Důkaz</span>
+                    <span>🎨</span>
+                    <span id="c2-gen" class="text-[10px] font-bold uppercase tracking-widest mono">Generovat Důkaz</span>
                 </button>
             </div>
         </div>
 
         <!-- 03 SEMANTIC ANALYZER -->
         <div class="lg:col-span-3 glass p-8 rounded-3xl">
-            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><span class="text-purple-500">03</span> <span id="qa-title-text">Sémantický &amp; Codebase Analyzátor</span></h2>
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                <span class="section-num text-purple-500">03</span>
+                <span id="qa-title-text">Sémantický &amp; Codebase Analyzátor</span>
+            </h2>
             <textarea id="qa-input" rows="4" class="bg-black/40 border border-white/10 rounded-xl px-6 py-4 w-full text-sm focus:outline-none focus:border-purple-500 mono mb-4" placeholder="Vložte kód nebo dotaz..."></textarea>
-            <button onclick="processQA()" class="bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 border border-purple-600/50 px-8 py-4 rounded-xl font-bold text-xs uppercase tracking-widest w-full md:w-auto"><span id="qa-btn-text">Analyzovat</span></button>
+            <button onclick="processQA()" class="bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 border border-purple-600/50 px-8 py-4 rounded-xl font-bold text-xs uppercase tracking-widest w-full md:w-auto mono transition-all"><span id="qa-btn-text">Analyzovat</span></button>
             <div id="qa-result-container" class="hidden mt-6 p-6 rounded-2xl border border-white/5 bg-white/5">
                 <div class="flex items-center gap-3 border-b border-white/5 pb-4 mb-4">
                     <span class="text-[10px] mono uppercase text-slate-500 tracking-widest">Sémantický Vektor:</span>
                     <span id="qa-status" class="text-[10px] mono font-bold px-3 py-1 rounded bg-slate-800 text-slate-400">...</span>
                 </div>
                 <div id="qa-loading" class="hidden py-4 text-center"><div class="ai-loading mx-auto"></div></div>
-                <p id="qa-answer" class="text-sm text-slate-200 font-mono whitespace-pre-wrap"></p>
+                <p id="qa-answer" class="text-sm text-slate-200 mono whitespace-pre-wrap"></p>
             </div>
         </div>
 
         <!-- 04 LANGUAGE MATRIX -->
         <div class="lg:col-span-3 glass p-8 rounded-3xl border-t border-teal-500/30">
-            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><span class="text-teal-500">04</span> <span id="loc-title-text">Globální Jazyková Matice</span></h2>
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                <span class="section-num text-teal-500">04</span>
+                <span id="loc-title-text">Globální Jazyková Matice</span>
+            </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="flex flex-col gap-4">
                     <input type="text" id="multi-lang-input" class="bg-black/40 border border-white/10 rounded-xl px-6 py-4 text-sm focus:outline-none focus:border-teal-500 mono" placeholder="...">
-                    <button onclick="runMultiVectTranslation()" class="bg-teal-600/20 hover:bg-teal-600/40 text-teal-300 border border-teal-600/50 px-8 py-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all"><span id="multi-lang-btn-text">Iniciovat Projekci</span></button>
+                    <button onclick="runMultiVectTranslation()" class="bg-teal-600/20 hover:bg-teal-600/40 text-teal-300 border border-teal-600/50 px-8 py-4 rounded-xl font-bold text-xs uppercase tracking-widest mono transition-all"><span id="multi-lang-btn-text">Iniciovat Projekci</span></button>
                 </div>
                 <div class="bg-black/40 border border-white/10 rounded-xl p-4 flex flex-col gap-2 min-h-[150px]" id="multi-lang-results">
                     <span id="loc-wait" class="text-[10px] mono uppercase text-slate-600 text-center mt-10 tracking-widest">Uzly v pohotovosti</span>
@@ -140,27 +319,33 @@
             </div>
         </div>
 
-        <!-- 05 RESPONSE BODY STRING SCANNER (B) -->
+        <!-- 05 RESPONSE BODY SCANNER -->
         <div class="lg:col-span-2 glass p-8 rounded-3xl border-t border-blue-500/20">
-            <h2 class="text-2xl font-bold mb-2 flex items-center gap-3"><span class="text-blue-400">05</span> Response Body Scanner</h2>
+            <h2 class="text-2xl font-bold mb-2 flex items-center gap-3">
+                <span class="section-num text-blue-400">05</span>
+                Response Body Scanner
+            </h2>
             <p class="text-slate-500 text-xs mono mb-6">B — Skenovat API response body pro libovolný string / pattern</p>
             <div class="flex flex-col gap-3">
                 <textarea id="scanner-url-payload" rows="3" class="bg-black/40 border border-white/10 rounded-xl px-4 py-3 w-full text-xs focus:outline-none focus:border-blue-500 mono" placeholder="Vložte dotaz (bude odveslán jako Gemini probe)..."></textarea>
                 <input type="text" id="scanner-pattern" class="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-yellow-500 mono" placeholder="Hledaný string / regex (např. candidates|error|model)">
-                <button onclick="runBodyScanner()" class="bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 border border-blue-500/40 px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all">🔍 Spustit Skánování</button>
+                <button onclick="runBodyScanner()" class="bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 border border-blue-500/40 px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest mono transition-all">🔍 Spustit Skánování</button>
             </div>
             <div id="scanner-result" class="hidden mt-4 glass p-4 rounded-xl">
                 <div class="flex items-center gap-3 mb-3">
                     <span id="scanner-status" class="text-[10px] mono font-bold px-3 py-1 rounded">...</span>
                     <span id="scanner-match-count" class="text-[10px] mono text-slate-500"></span>
                 </div>
-                <pre id="scanner-body" class="text-xs text-slate-300 font-mono whitespace-pre-wrap overflow-x-auto max-h-64 overflow-y-auto bg-black/40 p-3 rounded-lg"></pre>
+                <pre id="scanner-body" class="text-xs text-slate-300 mono whitespace-pre-wrap overflow-x-auto max-h-64 overflow-y-auto bg-black/40 p-3 rounded-lg"></pre>
             </div>
         </div>
 
-        <!-- 06 NETWORK STRUCTURE PROBE (C) -->
+        <!-- 06 NETWORK PROBE -->
         <div class="glass p-8 rounded-3xl border-t border-purple-500/20">
-            <h2 class="text-2xl font-bold mb-2 flex items-center gap-3"><span class="text-purple-400">06</span> Network Probe</h2>
+            <h2 class="text-2xl font-bold mb-2 flex items-center gap-3">
+                <span class="section-num text-purple-400">06</span>
+                Network Probe
+            </h2>
             <p class="text-slate-500 text-xs mono mb-6">C — Prob live API endpointové struktury</p>
             <div class="flex flex-col gap-3">
                 <select id="probe-target" class="bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-xs mono focus:outline-none focus:border-purple-500 text-slate-300">
@@ -169,7 +354,7 @@
                     <option value="custom">Custom URL (GET)</option>
                 </select>
                 <input type="text" id="probe-custom-url" class="hidden bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs mono focus:outline-none focus:border-purple-500" placeholder="https://...">
-                <button onclick="runNetworkProbe()" class="bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 border border-purple-500/40 px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all">📶 Spustit Probe</button>
+                <button onclick="runNetworkProbe()" class="bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 border border-purple-500/40 px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest mono transition-all">📶 Spustit Probe</button>
             </div>
             <div id="probe-result" class="hidden mt-4 glass p-4 rounded-xl">
                 <div class="flex items-center gap-2 mb-2">
@@ -177,7 +362,7 @@
                     <span id="probe-status-text" class="text-[10px] mono text-slate-400">...</span>
                     <span id="probe-latency" class="text-[10px] mono text-slate-600 ml-auto"></span>
                 </div>
-                <pre id="probe-body" class="text-xs text-slate-300 font-mono whitespace-pre-wrap overflow-x-auto max-h-48 overflow-y-auto bg-black/40 p-3 rounded-lg mt-2"></pre>
+                <pre id="probe-body" class="text-xs text-slate-300 mono whitespace-pre-wrap overflow-x-auto max-h-48 overflow-y-auto bg-black/40 p-3 rounded-lg mt-2"></pre>
             </div>
         </div>
 
@@ -189,68 +374,119 @@
 </main>
 
 <script>
-    let apiKey = localStorage.getItem('o_gate_key') || '';
+    // =============================================
+    // O-GATE SECURITY MODEL
+    // _oGateKey lives ONLY in this JS variable.
+    // Never written to: DOM attributes, dataset,
+    // localStorage, sessionStorage, URL, or cookies.
+    // Access surface: sublayer modal only (◈ / Ctrl+G)
+    // =============================================
+    let _oGateKey = '';
     const TEXT_MODEL = 'gemini-2.0-flash';
 
-    // --- KEY PANEL ---
-    function saveKey() {
-        const val = document.getElementById('key-input').value.trim();
-        if(!val) return;
-        localStorage.setItem('o_gate_key', val);
-        apiKey = val;
-        document.getElementById('key-input').value = '';
-        updateKeyStatus();
+    // --- SUBLAYER CONTROLS ---
+    function openSublayer() {
+        document.getElementById('sublayer-gate').classList.add('open');
+        setTimeout(() => document.getElementById('gate-key-input').focus(), 80);
     }
-    function clearKey() {
-        localStorage.removeItem('o_gate_key');
-        apiKey = '';
-        updateKeyStatus();
+    function closeSublayer() {
+        document.getElementById('sublayer-gate').classList.remove('open');
+        document.getElementById('gate-key-input').value = '';
+        hideFeedback();
     }
-    function updateKeyStatus() {
-        const dot = document.getElementById('key-status-dot');
-        const label = document.getElementById('key-label');
-        if(apiKey) { dot.className='w-2 h-2 rounded-full bg-emerald-500'; label.innerText='Key active ('+apiKey.substring(0,6)+'...)'; }
-        else { dot.className='w-2 h-2 rounded-full bg-red-500'; label.innerText='Not set'; }
+    function commitKey() {
+        const val = document.getElementById('gate-key-input').value.trim();
+        if (!val) { showFeedback('No key provided.', 'text-red-400'); return; }
+        _oGateKey = val;
+        document.getElementById('gate-key-input').value = '';
+        updateOrbStatus();
+        showFeedback('Key committed to volatile memory.', 'text-emerald-400');
+        setTimeout(closeSublayer, 900);
     }
-    function togglePanel() {
-        const p=document.getElementById('key-panel'), f=document.getElementById('key-panel-fab');
-        p.classList.toggle('hidden'); f.classList.toggle('hidden');
+    function purgeKey() {
+        _oGateKey = '';
+        document.getElementById('gate-key-input').value = '';
+        updateOrbStatus();
+        showFeedback('Key purged from memory.', 'text-orange-400');
+    }
+    function updateOrbStatus() {
+        const orb = document.getElementById('gate-status-orb');
+        if (_oGateKey) { orb.classList.add('active'); }
+        else { orb.classList.remove('active'); }
+    }
+    function showFeedback(msg, cls) {
+        const fb = document.getElementById('gate-feedback');
+        const txt = document.getElementById('gate-feedback-text');
+        fb.classList.remove('hidden');
+        txt.className = 'mono text-[10px] text-center tracking-widest ' + cls;
+        txt.innerText = msg;
+    }
+    function hideFeedback() {
+        document.getElementById('gate-feedback').classList.add('hidden');
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', e => {
+        if (e.ctrlKey && e.key === 'g') { e.preventDefault(); openSublayer(); }
+        if (e.key === 'Escape' && document.getElementById('sublayer-gate').classList.contains('open')) { closeSublayer(); }
+    });
+
+    // --- CORE API (volatile key only) ---
+    async function apiRequest(payload) {
+        if (!_oGateKey) throw new Error('O-Gate: Open sublayer (◈ in nav or Ctrl+G) and commit your Gemini key.');
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${TEXT_MODEL}:generateContent?key=${_oGateKey}`;
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error(`O-Gate route failure: HTTP ${res.status}`);
+        return await res.json();
     }
 
     // --- LOCALES ---
     const appLocales = {
-        'cs':{ id:'cs',flag:'🇨🇿',label:'CZ',navTitle:'Protocol O // Integrity Core',heroSub:'Protokol O / Vědomí Jádra',probePlh:'Sondování sémantické hloubky...',probeBtn:'Sonda ✨',c1Title:'Vizuální Audit Dokumentů',c1Desc:'Nahrajte snímek pro vizuální analýzu souladu.',c1Btn:'Vybrat Dokument',c2Voice:'Hlasový Brífink',c2Gen:'Generovat Důkaz',qaTitle:'Sémantický & Codebase Analyzátor',qaPlh:'Vložte kód nebo dotaz...',qaBtn:'Analyzovat',locTitle:'Globální Jazyková Matice',locPlh:'Zadejte termín...',locBtn:'Iniciovat Projekci',locWait:'Uzly v pohotovosti',chartLabels:['Etika','Věda','Právo','Dopad'] },
-        'en':{ id:'en',flag:'🇬🇧',label:'EN',navTitle:'Protocol O // Integrity Core',heroSub:'Protocol O / Core Consciousness',probePlh:'Probing semantic depth...',probeBtn:'Probe ✨',c1Title:'Visual Document Audit',c1Desc:'Upload a snapshot for visual compliance analysis.',c1Btn:'Select Document',c2Voice:'Voice Briefing',c2Gen:'Generate Proof',qaTitle:'Semantic & Codebase Analyzer',qaPlh:'Paste code or query...',qaBtn:'Analyze',locTitle:'Global Linguistic Matrix',locPlh:'Enter term...',locBtn:'Initiate Projection',locWait:'Nodes on standby',chartLabels:['Ethics','Science','Legal','Impact'] }
+        'cs': { id:'cs', flag:'🇨🇿', label:'CZ', navTitle:'Protocol O // Integrity Core', heroSub:'Protokol O / Vědomí Jádra', probePlh:'Sondování sémantické hloubky...', probeBtn:'Sonda ✨', c1Title:'Vizuální Audit Dokumentů', c1Desc:'Nahrajte snímek pro vizuální analýzu souladu.', c1Btn:'Vybrat Dokument', c2Voice:'Hlasový Brífink', c2Gen:'Generovat Důkaz', qaTitle:'Sémantický & Codebase Analyzátor', qaPlh:'Vložte kód nebo dotaz...', qaBtn:'Analyzovat', locTitle:'Globální Jazyková Matice', locPlh:'Zadejte termín...', locBtn:'Iniciovat Projekci', locWait:'Uzly v pohotovosti', chartLabels:['Etika','Věda','Právo','Dopad'] },
+        'en': { id:'en', flag:'🇬🇧', label:'EN', navTitle:'Protocol O // Integrity Core', heroSub:'Protocol O / Core Consciousness', probePlh:'Probing semantic depth...', probeBtn:'Probe ✨', c1Title:'Visual Document Audit', c1Desc:'Upload a snapshot for visual compliance analysis.', c1Btn:'Select Document', c2Voice:'Voice Briefing', c2Gen:'Generate Proof', qaTitle:'Semantic & Codebase Analyzer', qaPlh:'Paste code or query...', qaBtn:'Analyze', locTitle:'Global Linguistic Matrix', locPlh:'Enter term...', locBtn:'Initiate Projection', locWait:'Nodes on standby', chartLabels:['Ethics','Science','Legal','Impact'] }
     };
-    let activeAppLang='cs', ethicsChartInstance=null;
+    let activeAppLang = 'cs', ethicsChartInstance = null;
 
     function initLangSelector() {
-        const c=document.getElementById('lang-selector-container'); c.innerHTML='';
-        Object.values(appLocales).forEach(loc=>{
-            const isActive=activeAppLang===loc.id, btn=document.createElement('button');
-            btn.className=`flex-shrink-0 flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold mono transition-all border ${isActive?'bg-purple-600/30 border-purple-500 text-purple-200':'bg-white/5 border-white/10 text-slate-400'}`;
-            btn.innerHTML=`<span>${loc.flag}</span><span>${loc.label}</span>`;
-            btn.onclick=()=>setAppLang(loc.id); c.appendChild(btn);
+        const c = document.getElementById('lang-selector-container');
+        c.innerHTML = '';
+        Object.values(appLocales).forEach(loc => {
+            const isActive = activeAppLang === loc.id;
+            const btn = document.createElement('button');
+            btn.className = `flex-shrink-0 flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold mono transition-all border ${isActive ? 'bg-purple-600/30 border-purple-500 text-purple-200' : 'bg-white/5 border-white/10 text-slate-400'}`;
+            btn.innerHTML = `<span>${loc.flag}</span><span>${loc.label}</span>`;
+            btn.onclick = () => setAppLang(loc.id);
+            c.appendChild(btn);
         });
     }
+
     function setAppLang(langId) {
-        activeAppLang=langId; initLangSelector();
-        const loc=appLocales[langId];
-        [{id:'nav-title',t:loc.navTitle},{id:'hero-subtitle',t:loc.heroSub},{id:'ai-query',p:loc.probePlh},{id:'probe-btn-text',t:loc.probeBtn},{id:'c1-title',t:loc.c1Title},{id:'c1-desc',t:loc.c1Desc},{id:'c1-btn',t:loc.c1Btn},{id:'c2-voice',t:loc.c2Voice},{id:'c2-gen',t:loc.c2Gen},{id:'qa-title-text',t:loc.qaTitle},{id:'qa-input',p:loc.qaPlh},{id:'qa-btn-text',t:loc.qaBtn},{id:'loc-title-text',t:loc.locTitle},{id:'multi-lang-input',p:loc.locPlh},{id:'multi-lang-btn-text',t:loc.locBtn},{id:'loc-wait',t:loc.locWait}]
-        .forEach(el=>{ const d=document.getElementById(el.id); if(!d)return; d.style.opacity=0; setTimeout(()=>{ if(el.t)d.innerText=el.t; else d.placeholder=el.p; d.style.opacity=1; },200); });
-        if(ethicsChartInstance){ethicsChartInstance.data.labels=loc.chartLabels;ethicsChartInstance.update();}
+        activeAppLang = langId;
+        initLangSelector();
+        const loc = appLocales[langId];
+        [
+            {id:'nav-title',t:loc.navTitle}, {id:'hero-subtitle',t:loc.heroSub},
+            {id:'ai-query',p:loc.probePlh}, {id:'probe-btn-text',t:loc.probeBtn},
+            {id:'c1-title',t:loc.c1Title}, {id:'c1-desc',t:loc.c1Desc},
+            {id:'c1-btn',t:loc.c1Btn}, {id:'c2-voice',t:loc.c2Voice},
+            {id:'c2-gen',t:loc.c2Gen}, {id:'qa-title-text',t:loc.qaTitle},
+            {id:'qa-input',p:loc.qaPlh}, {id:'qa-btn-text',t:loc.qaBtn},
+            {id:'loc-title-text',t:loc.locTitle}, {id:'multi-lang-input',p:loc.locPlh},
+            {id:'multi-lang-btn-text',t:loc.locBtn}, {id:'loc-wait',t:loc.locWait}
+        ].forEach(el => {
+            const d = document.getElementById(el.id);
+            if (!d) return;
+            d.style.opacity = 0;
+            setTimeout(() => { if (el.t) d.innerText = el.t; else d.placeholder = el.p; d.style.opacity = 1; }, 200);
+        });
+        if (ethicsChartInstance) { ethicsChartInstance.data.labels = loc.chartLabels; ethicsChartInstance.update(); }
     }
 
-    // --- CORE API ---
-    async function apiRequest(payload) {
-        if(!apiKey) throw new Error('O-Gate: Set your Gemini API key via the ⚙ panel (bottom right).');
-        const url=`https://generativelanguage.googleapis.com/v1beta/models/${TEXT_MODEL}:generateContent?key=${apiKey}`;
-        const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-        if(!res.ok) throw new Error(`O-Gate route failure: ${res.status}`);
-        return await res.json();
-    }
-
-    // === B — RESPONSE BODY STRING SCANNER ===
+    // --- SCANNER B ---
     async function runBodyScanner() {
         const payload = document.getElementById('scanner-url-payload').value.trim();
         const pattern = document.getElementById('scanner-pattern').value.trim();
@@ -258,24 +494,23 @@
         const statusEl = document.getElementById('scanner-status');
         const bodyEl = document.getElementById('scanner-body');
         const countEl = document.getElementById('scanner-match-count');
-        if(!payload) return;
+        if (!payload) return;
         resultEl.classList.remove('hidden');
         statusEl.innerText = 'SCANNING...';
         statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-yellow-500/20 text-yellow-400';
         bodyEl.innerHTML = '<div class="ai-loading mx-auto"></div>';
         countEl.innerText = '';
         try {
-            const res = await apiRequest({ contents:[{parts:[{text:payload}]}], systemInstruction:{parts:[{text:'Answer concisely and precisely.'}]} });
+            const res = await apiRequest({ contents: [{ parts: [{ text: payload }] }], systemInstruction: { parts: [{ text: 'Answer concisely and precisely.' }] } });
             const rawBody = JSON.stringify(res, null, 2);
-            let displayBody = rawBody;
-            let matchCount = 0;
-            if(pattern) {
+            let displayBody = rawBody, matchCount = 0;
+            if (pattern) {
                 try {
                     const rx = new RegExp(pattern, 'gi');
                     const matches = rawBody.match(rx);
                     matchCount = matches ? matches.length : 0;
                     displayBody = rawBody.replace(rx, m => `«${m}»`);
-                    if(matchCount > 0) {
+                    if (matchCount > 0) {
                         statusEl.innerText = `MATCH — ${matchCount}x FOUND`;
                         statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-emerald-500/20 text-emerald-400';
                     } else {
@@ -283,7 +518,7 @@
                         statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-red-500/20 text-red-400';
                     }
                     countEl.innerText = `Pattern: "${pattern}" — ${matchCount} hit(s)`;
-                } catch(rxErr) {
+                } catch (rxErr) {
                     statusEl.innerText = 'REGEX ERROR';
                     statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-orange-500/20 text-orange-400';
                 }
@@ -292,14 +527,15 @@
                 statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-blue-500/20 text-blue-400';
             }
             bodyEl.textContent = displayBody;
-        } catch(e) {
-            statusEl.innerText = 'ERROR'; statusEl.className='text-[10px] mono font-bold px-3 py-1 rounded bg-red-500/20 text-red-400';
+        } catch (e) {
+            statusEl.innerText = 'ERROR';
+            statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-red-500/20 text-red-400';
             bodyEl.textContent = e.message;
         }
     }
 
-    // === C — NETWORK STRUCTURE PROBE ===
-    document.getElementById('probe-target').addEventListener('change', function(){
+    // --- NETWORK PROBE C ---
+    document.getElementById('probe-target').addEventListener('change', function () {
         document.getElementById('probe-custom-url').classList.toggle('hidden', this.value !== 'custom');
     });
 
@@ -318,35 +554,34 @@
         const t0 = performance.now();
         try {
             let res, url;
-            if(target === 'gemini-models') {
-                if(!apiKey) throw new Error('API key required');
-                url = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+            if (target === 'gemini-models') {
+                if (!_oGateKey) throw new Error('API key required — open O-Gate sublayer (◈)');
+                url = `https://generativelanguage.googleapis.com/v1beta/models?key=${_oGateKey}`;
                 res = await fetch(url);
-            } else if(target === 'gemini-ping') {
-                if(!apiKey) throw new Error('API key required');
-                url = `https://generativelanguage.googleapis.com/v1beta/models/${TEXT_MODEL}:generateContent?key=${apiKey}`;
-                res = await fetch(url, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:'ping'}]}]})});
+            } else if (target === 'gemini-ping') {
+                if (!_oGateKey) throw new Error('API key required — open O-Gate sublayer (◈)');
+                url = `https://generativelanguage.googleapis.com/v1beta/models/${TEXT_MODEL}:generateContent?key=${_oGateKey}`;
+                res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: 'ping' }] }] }) });
             } else {
                 url = document.getElementById('probe-custom-url').value.trim();
-                if(!url) throw new Error('Enter a URL');
+                if (!url) throw new Error('Enter a URL');
                 res = await fetch(url);
             }
             const latency = Math.round(performance.now() - t0);
             const data = await res.json();
-            const status = res.status;
             latencyEl.innerText = `${latency}ms`;
-            if(res.ok) {
+            if (res.ok) {
                 dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
-                statusText.innerText = `HTTP ${status} — ONLINE — ${url.split('/').slice(3,6).join('/')}`;
+                statusText.innerText = `HTTP ${res.status} — ONLINE — ${url.split('/').slice(3, 6).join('/')}`;
                 statusText.className = 'text-[10px] mono text-emerald-400';
             } else {
                 dot.className = 'w-2 h-2 rounded-full bg-red-400';
-                statusText.innerText = `HTTP ${status} — ERROR`;
+                statusText.innerText = `HTTP ${res.status} — ERROR`;
                 statusText.className = 'text-[10px] mono text-red-400';
             }
             const keys = extractStructure(data);
-            bodyEl.textContent = `STRUCTURE:\n${keys}\n\nRAW (first 2000 chars):\n${JSON.stringify(data,null,2).substring(0,2000)}`;
-        } catch(e) {
+            bodyEl.textContent = `STRUCTURE:\n${keys}\n\nRAW (first 2000 chars):\n${JSON.stringify(data, null, 2).substring(0, 2000)}`;
+        } catch (e) {
             const latency = Math.round(performance.now() - t0);
             dot.className = 'w-2 h-2 rounded-full bg-red-400';
             statusText.innerText = `PROBE FAILED — ${e.message}`;
@@ -356,75 +591,122 @@
         }
     }
 
-    function extractStructure(obj, prefix='', depth=0) {
-        if(depth > 4) return '';
+    function extractStructure(obj, prefix = '', depth = 0) {
+        if (depth > 4) return '';
         let lines = [];
-        if(Array.isArray(obj)) {
+        if (Array.isArray(obj)) {
             lines.push(`${prefix}[] (${obj.length} items)`);
-            if(obj[0] && typeof obj[0]==='object') lines.push(extractStructure(obj[0], prefix+'  [0].', depth+1));
-        } else if(obj && typeof obj==='object') {
-            Object.keys(obj).forEach(k=>{
+            if (obj[0] && typeof obj[0] === 'object') lines.push(extractStructure(obj[0], prefix + '  [0].', depth + 1));
+        } else if (obj && typeof obj === 'object') {
+            Object.keys(obj).forEach(k => {
                 const v = obj[k];
-                const type = Array.isArray(v)?`Array(${v.length})`:typeof v;
+                const type = Array.isArray(v) ? `Array(${v.length})` : typeof v;
                 lines.push(`${prefix}${k}: ${type}`);
-                if(v && typeof v==='object' && depth<3) lines.push(extractStructure(v,prefix+'  ',depth+1));
+                if (v && typeof v === 'object' && depth < 3) lines.push(extractStructure(v, prefix + '  ', depth + 1));
             });
         }
         return lines.join('\n');
     }
 
-    // --- EXISTING FUNCTIONS ---
+    // --- CORE FUNCTIONS ---
     async function askInnerMind() {
-        const input=document.getElementById('ai-query').value; if(!input)return;
-        const container=document.getElementById('ai-response-container'),loader=document.getElementById('probe-loading'),responseEl=document.getElementById('ai-response');
-        container.classList.remove('hidden');loader.classList.remove('hidden');responseEl.innerText='';
-        try { const res=await apiRequest({contents:[{parts:[{text:input}]}],systemInstruction:{parts:[{text:`You are Protocol O inner mind. Answer poetically and concisely in: ${activeAppLang.toUpperCase()}`}]}}); responseEl.innerText=res.candidates[0].content.parts[0].text; }
-        catch(e){responseEl.innerText=e.message;} loader.classList.add('hidden');
+        const input = document.getElementById('ai-query').value;
+        if (!input) return;
+        const container = document.getElementById('ai-response-container');
+        const loader = document.getElementById('probe-loading');
+        const responseEl = document.getElementById('ai-response');
+        container.classList.remove('hidden');
+        loader.classList.remove('hidden');
+        responseEl.innerText = '';
+        try {
+            const res = await apiRequest({ contents: [{ parts: [{ text: input }] }], systemInstruction: { parts: [{ text: `You are Protocol O inner mind. Answer poetically and concisely in: ${activeAppLang.toUpperCase()}` }] } });
+            responseEl.innerText = res.candidates[0].content.parts[0].text;
+        } catch (e) { responseEl.innerText = e.message; }
+        loader.classList.add('hidden');
     }
+
     async function processQA() {
-        const input=document.getElementById('qa-input').value; if(!input)return;
-        const container=document.getElementById('qa-result-container'),statusEl=document.getElementById('qa-status'),answerEl=document.getElementById('qa-answer'),loader=document.getElementById('qa-loading');
-        container.classList.remove('hidden');loader.classList.remove('hidden');answerEl.innerText='';
+        const input = document.getElementById('qa-input').value;
+        if (!input) return;
+        const container = document.getElementById('qa-result-container');
+        const statusEl = document.getElementById('qa-status');
+        const answerEl = document.getElementById('qa-answer');
+        const loader = document.getElementById('qa-loading');
+        container.classList.remove('hidden');
+        loader.classList.remove('hidden');
+        answerEl.innerText = '';
         try {
-            const res=await apiRequest({contents:[{parts:[{text:input}]}],systemInstruction:{parts:[{text:`Jsi Protocol O Analyzer. Taguj: [CODE_AUDIT] nebo [SEMANTIC]. Odpovídej: ${activeAppLang.toUpperCase()}.`}]}});
-            const text=res.candidates[0].content.parts[0].text; loader.classList.add('hidden');
-            if(text.includes('[CODE_AUDIT]')){statusEl.innerText='CODEBASE AUDIT';statusEl.className='text-[10px] mono font-bold px-3 py-1 rounded bg-blue-500/20 text-blue-400';}
-            else{statusEl.innerText='SEMANTIC SYNC';statusEl.className='text-[10px] mono font-bold px-3 py-1 rounded bg-green-500/20 text-green-400';}
-            answerEl.innerText=text.replace(/\[.*?\]/g,'').trim();
-        } catch(e){loader.classList.add('hidden');statusEl.innerText='ERROR';answerEl.innerText=e.message;}
+            const res = await apiRequest({ contents: [{ parts: [{ text: input }] }], systemInstruction: { parts: [{ text: `Jsi Protocol O Analyzer. Taguj: [CODE_AUDIT] nebo [SEMANTIC]. Odpovídej: ${activeAppLang.toUpperCase()}.` }] } });
+            const text = res.candidates[0].content.parts[0].text;
+            loader.classList.add('hidden');
+            if (text.includes('[CODE_AUDIT]')) { statusEl.innerText = 'CODEBASE AUDIT'; statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-blue-500/20 text-blue-400'; }
+            else { statusEl.innerText = 'SEMANTIC SYNC'; statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-green-500/20 text-green-400'; }
+            answerEl.innerText = text.replace(/\[.*?\]/g, '').trim();
+        } catch (e) { loader.classList.add('hidden'); statusEl.innerText = 'ERROR'; answerEl.innerText = e.message; }
     }
+
     async function runMultiVectTranslation() {
-        const input=document.getElementById('multi-lang-input').value;
-        const results=document.getElementById('multi-lang-results');
-        results.innerHTML='<div class="ai-loading mx-auto mt-10"></div>';
+        const input = document.getElementById('multi-lang-input').value;
+        const results = document.getElementById('multi-lang-results');
+        results.innerHTML = '<div class="ai-loading mx-auto mt-10"></div>';
         try {
-            const res=await apiRequest({contents:[{parts:[{text:input}]}],systemInstruction:{parts:[{text:'Translate to EN, DE, FR, ES. Return ONLY valid JSON: {"EN":"...","DE":"...","FR":"...","ES":"..."}'}]}});
-            const data=JSON.parse(res.candidates[0].content.parts[0].text.replace(/```json|```/g,'').trim());
-            results.innerHTML='';
-            Object.entries(data).forEach(([lang,val])=>{ results.innerHTML+=`<div class="p-2 border-b border-white/5 flex justify-between"><span class="text-[10px] mono text-teal-400">${lang}</span><span class="text-xs">${val}</span></div>`; });
-        } catch(e){results.innerHTML=`<span class="text-red-400 text-xs">${e.message}</span>`;}
+            const res = await apiRequest({ contents: [{ parts: [{ text: input }] }], systemInstruction: { parts: [{ text: 'Translate to EN, DE, FR, ES. Return ONLY valid JSON: {"EN":"...","DE":"...","FR":"...","ES":"..."}' }] } });
+            const data = JSON.parse(res.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim());
+            results.innerHTML = '';
+            Object.entries(data).forEach(([lang, val]) => {
+                results.innerHTML += `<div class="p-2 border-b border-white/5 flex justify-between"><span class="text-[10px] mono text-teal-400">${lang}</span><span class="text-xs">${val}</span></div>`;
+            });
+        } catch (e) { results.innerHTML = `<span class="text-red-400 text-xs">${e.message}</span>`; }
     }
+
     async function performVisualAudit(input) {
-        const file=input.files[0]; if(!file)return;
-        const loader=document.getElementById('visual-audit-loading'),result=document.getElementById('visual-audit-result');
-        loader.classList.remove('hidden');result.classList.add('hidden');
+        const file = input.files[0];
+        if (!file) return;
+        const loader = document.getElementById('visual-audit-loading');
+        const result = document.getElementById('visual-audit-result');
+        loader.classList.remove('hidden');
+        result.classList.add('hidden');
         try {
-            const b64=await new Promise(r=>{const rd=new FileReader();rd.onload=e=>r(e.target.result.split(',')[1]);rd.readAsDataURL(file);});
-            const res=await apiRequest({contents:[{parts:[{inline_data:{mime_type:file.type,data:b64}},{text:'Analyze for Protocol O compliance. Be concise.'}]}]});
-            result.innerText=res.candidates[0].content.parts[0].text;
-        } catch(e){result.innerText=e.message;}
-        loader.classList.add('hidden');result.classList.remove('hidden');
+            const b64 = await new Promise(r => { const rd = new FileReader(); rd.onload = e => r(e.target.result.split(',')[1]); rd.readAsDataURL(file); });
+            const res = await apiRequest({ contents: [{ parts: [{ inline_data: { mime_type: file.type, data: b64 } }, { text: 'Analyze for Protocol O compliance. Be concise.' }] }] });
+            result.innerText = res.candidates[0].content.parts[0].text;
+        } catch (e) { result.innerText = e.message; }
+        loader.classList.add('hidden');
+        result.classList.remove('hidden');
     }
-    function triggerVoiceBriefing(){document.getElementById('tts-icon').innerText='🔕';setTimeout(()=>{document.getElementById('tts-icon').innerText='🔊';},2000);alert('O-Gate: Voice briefing requires server-side TTS.');}
-    function generateCertificate(){
-        const ts=new Date().toISOString();
-        const cert=`PROTOCOL O INTEGRITY CERTIFICATE\n${'-'.repeat(40)}\nTimestamp: ${ts}\nNode: ${activeAppLang.toUpperCase()}\nStatus: ALIGNED\nEthics: 95 | Science: 80 | Legal: 85 | Impact: 90\n${'-'.repeat(40)}`;
-        const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([cert],{type:'text/plain'})); a.download=`protocol-o-cert-${Date.now()}.txt`; a.click();
+
+    function triggerVoiceBriefing() {
+        document.getElementById('tts-icon').innerText = '🔕';
+        setTimeout(() => { document.getElementById('tts-icon').innerText = '🔊'; }, 2000);
+        alert('O-Gate: Voice briefing requires server-side TTS.');
     }
-    function initInnerPlot(){
-        const n=100;
-        Plotly.newPlot('inner-space-plot',[{x:Array.from({length:n},()=>Math.random()*20),y:Array.from({length:n},()=>Math.random()*20),z:Array.from({length:n},()=>Math.random()*20),mode:'markers',type:'scatter3d',marker:{size:2,color:'#2563eb',opacity:0.5}}],{paper_bgcolor:'rgba(0,0,0,0)',plot_bgcolor:'rgba(0,0,0,0)',margin:{l:0,r:0,t:0,b:0},scene:{xaxis:{visible:false},yaxis:{visible:false},zaxis:{visible:false}}},{displayModeBar:false});
+
+    function generateCertificate() {
+        const ts = new Date().toISOString();
+        const cert = `PROTOCOL O INTEGRITY CERTIFICATE\n${'-'.repeat(40)}\nTimestamp: ${ts}\nNode: ${activeAppLang.toUpperCase()}\nStatus: ALIGNED\nEthics: 95 | Science: 80 | Legal: 85 | Impact: 90\n${'-'.repeat(40)}`;
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([cert], { type: 'text/plain' }));
+        a.download = `protocol-o-cert-${Date.now()}.txt`;
+        a.click();
     }
+
+    function initInnerPlot() {
+        const n = 100;
+        Plotly.newPlot('inner-space-plot', [{
+            x: Array.from({ length: n }, () => Math.random() * 20),
+            y: Array.from({ length: n }, () => Math.random() * 20),
+            z: Array.from({ length: n }, () => Math.random() * 20),
+            mode: 'markers', type: 'scatter3d',
+            marker: { size: 2, color: '#2563eb', opacity: 0.5 }
+        }], {
+            paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+            margin: { l: 0, r: 0, t: 0, b: 0 },
+            scene: { xaxis: { visible: false }, yaxis: { visible: false }, zaxis: { visible: false } }
+        }, { displayModeBar: false });
+    }
+
+    function recalibrate() { location.reload(); }
+
     window.onload = () => {
         initInnerPlot();
         initLangSelector();
@@ -442,10 +724,9 @@
             }
         });
         setAppLang('cs');
-        updateKeyStatus();
-        document.getElementById('key-input').addEventListener('keydown', e => { if (e.key === 'Enter') saveKey(); });
+        updateOrbStatus();
+        document.getElementById('ai-query').addEventListener('keydown', e => { if (e.key === 'Enter') askInnerMind(); });
     };
-    function recalibrate() { location.reload(); }
 </script>
 </body>
 </html>
