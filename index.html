@@ -261,6 +261,22 @@
             background: #60a5fa;
             box-shadow: 0 0 6px #60a5fa88;
         }
+
+        /* ENGINE LABEL — small badge shown in function outputs */
+        .engine-badge {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            padding: 1px 7px;
+            border-radius: 999px;
+            border: 1px solid rgba(37,99,235,0.25);
+            background: rgba(37,99,235,0.08);
+            color: rgba(96,165,250,0.6);
+            margin-bottom: 6px;
+        }
+        .engine-badge.gemini { border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.08); color: rgba(52,211,153,0.7); }
     </style>
 </head>
 <body class="antialiased">
@@ -279,11 +295,11 @@
             </div>
             <div>
                 <p class="mono text-[10px] uppercase tracking-[0.2em] text-blue-400 font-bold">O-Gate // Sublayer Access</p>
-                <p class="mono text-[9px] text-slate-600 mt-0.5">Credentials stored in volatile memory only</p>
+                <p class="mono text-[9px] text-slate-600 mt-0.5">Gemini key → premium engine. Optional — all functions run keyless via Pollinations.</p>
             </div>
         </div>
 
-        <label class="mono text-[10px] uppercase tracking-widest text-slate-500 mb-2 block">Gemini API Key</label>
+        <label class="mono text-[10px] uppercase tracking-widest text-slate-500 mb-2 block">Gemini API Key (optional)</label>
         <input
             type="password"
             id="gate-key-input"
@@ -422,6 +438,7 @@
         </div>
         <div id="ai-response-container" class="hidden mt-6 glass p-6 rounded-2xl text-left max-w-2xl mx-auto border-blue-500/30">
             <div id="probe-loading" class="hidden py-2"><div class="ai-loading mx-auto"></div></div>
+            <p id="ai-engine-badge" class="engine-badge">Pollinations.AI · FREE</p>
             <p id="ai-response" class="text-sm leading-relaxed text-blue-100 italic mono"></p>
         </div>
     </div>
@@ -437,6 +454,7 @@
                 <span id="c1-title">Vizuální Audit Dokumentů</span>
             </h2>
             <p id="c1-desc" class="text-slate-400 text-sm mb-6 leading-relaxed">Analýza souladu dokumentů s etickými normami Protokolu O.</p>
+            <p class="mono text-[9px] text-slate-700 mb-3 uppercase tracking-widest">Note: Visual audit requires Gemini key (multimodal). Open ◈ to unlock.</p>
             <div class="flex flex-col gap-4">
                 <div class="flex items-center gap-4">
                     <input type="file" id="visual-audit-input" accept="image/*" class="hidden" onchange="performVisualAudit(this)">
@@ -477,6 +495,7 @@
                 <div class="flex items-center gap-3 border-b border-white/5 pb-4 mb-4">
                     <span class="text-[10px] mono uppercase text-slate-500 tracking-widest">Sémantický Vektor:</span>
                     <span id="qa-status" class="text-[10px] mono font-bold px-3 py-1 rounded bg-slate-800 text-slate-400">...</span>
+                    <span id="qa-engine-badge" class="engine-badge ml-auto">Pollinations.AI</span>
                 </div>
                 <div id="qa-loading" class="hidden py-4 text-center"><div class="ai-loading mx-auto"></div></div>
                 <p id="qa-answer" class="text-sm text-slate-200 mono whitespace-pre-wrap"></p>
@@ -508,7 +527,7 @@
             </h2>
             <p class="text-slate-500 text-xs mono mb-6">B — Skenovat API response body pro libovolný string / pattern</p>
             <div class="flex flex-col gap-3">
-                <textarea id="scanner-url-payload" rows="3" class="bg-black/40 border border-white/10 rounded-xl px-4 py-3 w-full text-xs focus:outline-none focus:border-blue-500 mono" placeholder="Vložte dotaz (bude odveslán jako Gemini probe)..."></textarea>
+                <textarea id="scanner-url-payload" rows="3" class="bg-black/40 border border-white/10 rounded-xl px-4 py-3 w-full text-xs focus:outline-none focus:border-blue-500 mono" placeholder="Vložte dotaz (bude odveslán jako probe)..."></textarea>
                 <input type="text" id="scanner-pattern" class="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-yellow-500 mono" placeholder="Hledaný string / regex (např. candidates|error|model)">
                 <button onclick="runBodyScanner()" class="bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 border border-blue-500/40 px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest mono transition-all">🔍 Spustit Skánování</button>
             </div>
@@ -516,6 +535,7 @@
                 <div class="flex items-center gap-3 mb-3">
                     <span id="scanner-status" class="text-[10px] mono font-bold px-3 py-1 rounded">...</span>
                     <span id="scanner-match-count" class="text-[10px] mono text-slate-500"></span>
+                    <span id="scanner-engine-badge" class="engine-badge ml-auto">Pollinations.AI</span>
                 </div>
                 <pre id="scanner-body" class="text-xs text-slate-300 mono whitespace-pre-wrap overflow-x-auto max-h-64 overflow-y-auto bg-black/40 p-3 rounded-lg"></pre>
             </div>
@@ -530,8 +550,9 @@
             <p class="text-slate-500 text-xs mono mb-6">C — Prob live API endpointové struktury</p>
             <div class="flex flex-col gap-3">
                 <select id="probe-target" class="bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-xs mono focus:outline-none focus:border-purple-500 text-slate-300">
-                    <option value="gemini-models">Gemini — list models</option>
-                    <option value="gemini-ping">Gemini — ping generateContent</option>
+                    <option value="pollinations-ping">Pollinations — ping (free, keyless)</option>
+                    <option value="gemini-models">Gemini — list models (key required)</option>
+                    <option value="gemini-ping">Gemini — ping generateContent (key required)</option>
                     <option value="custom">Custom URL (GET)</option>
                 </select>
                 <input type="text" id="probe-custom-url" class="hidden bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs mono focus:outline-none focus:border-purple-500" placeholder="https://...">
@@ -561,6 +582,11 @@
     // Never written to: DOM attributes, dataset,
     // localStorage, sessionStorage, URL, or cookies.
     // Access surface: sublayer modal only (◈ / Ctrl+G)
+    //
+    // ENGINE PRIORITY (all functions):
+    //   1. Gemini via O-Gate  — if _oGateKey present
+    //   2. Pollinations.AI    — free, keyless, always available
+    // No function hard-blocks without a key.
     // =============================================
     let _oGateKey = '';
     const TEXT_MODEL = 'gemini-2.0-flash';
@@ -581,14 +607,14 @@
         _oGateKey = val;
         document.getElementById('gate-key-input').value = '';
         updateOrbStatus();
-        showFeedback('Key committed to volatile memory.', 'text-emerald-400');
+        showFeedback('Key committed — Gemini engine active.', 'text-emerald-400');
         setTimeout(closeSublayer, 900);
     }
     function purgeKey() {
         _oGateKey = '';
         document.getElementById('gate-key-input').value = '';
         updateOrbStatus();
-        showFeedback('Key purged from memory.', 'text-orange-400');
+        showFeedback('Key purged. Falling back to Pollinations.', 'text-orange-400');
     }
     function updateOrbStatus() {
         const orb = document.getElementById('gate-status-orb');
@@ -615,47 +641,72 @@
         }
     });
 
-    // --- CORE API (volatile key only) ---
+    // =============================================
+    // ENGINE LAYER
+    //
+    // apiRequest()         — Gemini only, throws if no key
+    // pollinationsRequest() — free, keyless
+    // smartRequest()        — tries Gemini first, falls to Pollinations
+    //                         returns { text, engine }
+    // =============================================
+
     async function apiRequest(payload) {
-        if (!_oGateKey) throw new Error('O-Gate: Open sublayer (◈ in nav or Ctrl+G) and commit your Gemini key.');
+        if (!_oGateKey) throw new Error('No Gemini key — O-Gate not committed.');
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${TEXT_MODEL}:generateContent?key=${_oGateKey}`;
         const res = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
-        if (!res.ok) throw new Error(`O-Gate route failure: HTTP ${res.status}`);
+        if (!res.ok) throw new Error(`Gemini HTTP ${res.status}`);
         return await res.json();
     }
 
-    // --- POLLINATIONS.AI — free, keyless engine ---
-    // Used for certificate generation. No key required.
-    // Falls back to Gemini if O-Gate key is present.
-    async function pollinationsRequest(prompt) {
-        const model = 'openai'; // Pollinations free routing
-        const url = 'https://text.pollinations.ai/openai';
-        const res = await fetch(url, {
+    async function pollinationsRequest(prompt, systemPrompt) {
+        const res = await fetch('https://text.pollinations.ai/openai', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                model,
+                model: 'openai',
                 messages: [
-                    {
-                        role: 'system',
-                        content: 'You are Protocol O — a cryptographic integrity engine. Respond only in the language requested. Be precise, dense, poetic-technical.'
-                    },
+                    { role: 'system', content: systemPrompt || 'You are Protocol O — a precise, poetic-technical AI engine.' },
                     { role: 'user', content: prompt }
                 ],
-                temperature: 0.72,
-                max_tokens: 220
+                temperature: 0.7,
+                max_tokens: 512
             })
         });
-        if (!res.ok) throw new Error(`Pollinations route failure: HTTP ${res.status}`);
+        if (!res.ok) throw new Error(`Pollinations HTTP ${res.status}`);
         const data = await res.json();
         return data.choices[0].message.content.trim();
     }
 
-    // Hash helper — short deterministic fingerprint from timestamp + lang
+    // smartRequest: Gemini if key present, else Pollinations
+    // Returns { text: string, engine: string }
+    async function smartRequest(prompt, systemPrompt) {
+        if (_oGateKey) {
+            try {
+                const payload = {
+                    contents: [{ parts: [{ text: prompt }] }]
+                };
+                if (systemPrompt) {
+                    payload.systemInstruction = { parts: [{ text: systemPrompt }] };
+                }
+                const res = await apiRequest(payload);
+                return {
+                    text: res.candidates[0].content.parts[0].text.trim(),
+                    engine: 'Gemini · O-Gate'
+                };
+            } catch (e) {
+                // Gemini failed — fall through to Pollinations
+                console.warn('Gemini failed, falling back to Pollinations:', e.message);
+            }
+        }
+        const text = await pollinationsRequest(prompt, systemPrompt);
+        return { text, engine: 'Pollinations.AI · FREE' };
+    }
+
+    // Hash helper
     async function shortHash(input) {
         const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input));
         return Array.from(new Uint8Array(buf)).slice(0, 4).map(b => b.toString(16).padStart(2,'0')).join('').toUpperCase();
@@ -663,16 +714,11 @@
 
     // =============================================
     // GENERATE CERTIFICATE
-    // Priority: Pollinations.AI (free, always).
-    // If Pollinations fails AND Gemini key present → fallback to Gemini.
-    // Certificate rendered as visual sublayer card.
+    // Uses Pollinations (free) or Gemini (if key present).
     // =============================================
-
-    // Volatile cert store — cleared on dismiss
     let _certData = null;
 
     async function generateCertificate() {
-        // Open cert sublayer in loading state
         const sublayer = document.getElementById('cert-sublayer');
         document.getElementById('cert-loading-state').style.display = 'flex';
         document.getElementById('cert-content').style.display = 'none';
@@ -681,44 +727,25 @@
         const ts = new Date().toISOString();
         const lang = activeAppLang.toUpperCase();
         const hash = await shortHash(ts + lang + Math.random());
-
         const scores = { Ethics: 95, Science: 80, Legal: 85, Impact: 90 };
         const confidence = Math.round((scores.Ethics + scores.Science + scores.Legal + scores.Impact) / 4);
 
-        const prompt = `Generate a Protocol O Integrity Certificate seal statement. Language: ${lang}.
-Timestamp: ${ts}. Hash: ${hash}. Confidence: ${confidence}%.
-The statement must be 2-3 sentences, cryptographic in tone, referencing alignment and verification.
-Do not include any headings, labels, or metadata — only the seal body text.`;
+        const prompt = `Generate a Protocol O Integrity Certificate seal statement. Language: ${lang}.\nTimestamp: ${ts}. Hash: ${hash}. Confidence: ${confidence}%.\nThe statement must be 2-3 sentences, cryptographic in tone, referencing alignment and verification.\nDo not include any headings, labels, or metadata — only the seal body text.`;
 
         let sealText = '';
         let engineLabel = 'Pollinations.AI · FREE';
 
         try {
-            sealText = await pollinationsRequest(prompt);
-        } catch (pollinationsErr) {
-            // Fallback: try Gemini if key available
-            if (_oGateKey) {
-                try {
-                    const res = await apiRequest({
-                        contents: [{ parts: [{ text: prompt }] }],
-                        systemInstruction: { parts: [{ text: 'You are Protocol O integrity engine. Be precise and cryptographic.' }] }
-                    });
-                    sealText = res.candidates[0].content.parts[0].text.trim();
-                    engineLabel = 'Gemini · O-Gate';
-                } catch (geminiErr) {
-                    sealText = `Node ${lang} integrity verified at ${ts}. Hash ${hash} confirmed aligned. Protocol O seal active — no anomaly detected.`;
-                    engineLabel = 'Static Fallback';
-                }
-            } else {
-                sealText = `Node ${lang} integrity verified at ${ts}. Hash ${hash} confirmed aligned. Protocol O seal active — no anomaly detected.`;
-                engineLabel = 'Static Fallback';
-            }
+            const result = await smartRequest(prompt, 'You are Protocol O — a cryptographic integrity engine. Be precise, dense, poetic-technical.');
+            sealText = result.text;
+            engineLabel = result.engine;
+        } catch (e) {
+            sealText = `Node ${lang} integrity verified at ${ts}. Hash ${hash} confirmed aligned. Protocol O seal active — no anomaly detected.`;
+            engineLabel = 'Static Fallback';
         }
 
-        // Store volatile cert data for download
         _certData = { ts, lang, hash, confidence, scores, sealText, engineLabel };
 
-        // Inject into card
         document.getElementById('cert-engine-label').innerText = engineLabel;
 
         const metaRows = [
@@ -730,35 +757,28 @@ Do not include any headings, labels, or metadata — only the seal body text.`;
             ['ENGINE', engineLabel]
         ];
 
-        const metaContainer = document.getElementById('cert-meta-rows');
-        metaContainer.innerHTML = metaRows.map(([label, value]) =>
-            `<div class="cert-row">
-                <span class="cert-label">${label}</span>
-                <span class="cert-value">${value}</span>
-            </div>`
+        document.getElementById('cert-meta-rows').innerHTML = metaRows.map(([label, value]) =>
+            `<div class="cert-row"><span class="cert-label">${label}</span><span class="cert-value">${value}</span></div>`
         ).join('');
 
         document.getElementById('cert-seal-text').innerText = sealText;
 
-        // Animate confidence bar
         const bar = document.getElementById('cert-confidence-bar');
         const val = document.getElementById('cert-confidence-val');
-        bar.style.width = '0%';
-        val.innerText = '0%';
+        bar.style.width = '0%'; val.innerText = '0%';
         setTimeout(() => {
             bar.style.transition = 'width 1.2s cubic-bezier(0.16,1,0.3,1)';
             bar.style.width = confidence + '%';
             val.innerText = confidence + '%';
         }, 120);
 
-        // Reveal content
         document.getElementById('cert-loading-state').style.display = 'none';
         document.getElementById('cert-content').style.display = 'block';
     }
 
     function closeCertificate() {
         document.getElementById('cert-sublayer').classList.remove('open');
-        _certData = null; // purge volatile cert data
+        _certData = null;
     }
 
     function downloadCertificate() {
@@ -834,6 +854,120 @@ Do not include any headings, labels, or metadata — only the seal body text.`;
         if (ethicsChartInstance) { ethicsChartInstance.data.labels = loc.chartLabels; ethicsChartInstance.update(); }
     }
 
+    // =============================================
+    // CORE FUNCTIONS — all use smartRequest()
+    // Engine badge injected into every result area.
+    // =============================================
+
+    async function askInnerMind() {
+        const input = document.getElementById('ai-query').value;
+        if (!input) return;
+        const container = document.getElementById('ai-response-container');
+        const loader = document.getElementById('probe-loading');
+        const responseEl = document.getElementById('ai-response');
+        const badgeEl = document.getElementById('ai-engine-badge');
+        container.classList.remove('hidden');
+        loader.classList.remove('hidden');
+        responseEl.innerText = '';
+        try {
+            const result = await smartRequest(
+                input,
+                `You are Protocol O inner mind. Answer poetically and concisely in: ${activeAppLang.toUpperCase()}`
+            );
+            responseEl.innerText = result.text;
+            badgeEl.innerText = result.engine;
+            badgeEl.className = 'engine-badge' + (result.engine.includes('Gemini') ? ' gemini' : '');
+        } catch (e) {
+            responseEl.innerText = e.message;
+        }
+        loader.classList.add('hidden');
+    }
+
+    async function processQA() {
+        const input = document.getElementById('qa-input').value;
+        if (!input) return;
+        const container = document.getElementById('qa-result-container');
+        const statusEl = document.getElementById('qa-status');
+        const answerEl = document.getElementById('qa-answer');
+        const loader = document.getElementById('qa-loading');
+        const badgeEl = document.getElementById('qa-engine-badge');
+        container.classList.remove('hidden');
+        loader.classList.remove('hidden');
+        answerEl.innerText = '';
+        try {
+            const result = await smartRequest(
+                input,
+                `You are Protocol O Analyzer. Tag your response with [CODE_AUDIT] if it's code-related, or [SEMANTIC] if it's semantic/conceptual. Respond in: ${activeAppLang.toUpperCase()}.`
+            );
+            loader.classList.add('hidden');
+            const text = result.text;
+            badgeEl.innerText = result.engine;
+            badgeEl.className = 'engine-badge ml-auto' + (result.engine.includes('Gemini') ? ' gemini' : '');
+            if (text.includes('[CODE_AUDIT]')) {
+                statusEl.innerText = 'CODEBASE AUDIT';
+                statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-blue-500/20 text-blue-400';
+            } else {
+                statusEl.innerText = 'SEMANTIC SYNC';
+                statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-green-500/20 text-green-400';
+            }
+            answerEl.innerText = text.replace(/\[.*?\]/g, '').trim();
+        } catch (e) {
+            loader.classList.add('hidden');
+            statusEl.innerText = 'ERROR';
+            answerEl.innerText = e.message;
+        }
+    }
+
+    async function runMultiVectTranslation() {
+        const input = document.getElementById('multi-lang-input').value;
+        if (!input) return;
+        const results = document.getElementById('multi-lang-results');
+        results.innerHTML = '<div class="ai-loading mx-auto mt-10"></div>';
+        try {
+            const result = await smartRequest(
+                `Translate the following to EN, DE, FR, ES. Return ONLY valid JSON: {"EN":"...","DE":"...","FR":"...","ES":"..."}. Input: ${input}`,
+                'You are a precise translation engine. Output only valid JSON, no markdown, no explanation.'
+            );
+            // Strip markdown code fences if present
+            const clean = result.text.replace(/```json|```/g, '').trim();
+            const data = JSON.parse(clean);
+            const engineLabel = result.engine;
+            const isGemini = engineLabel.includes('Gemini');
+            results.innerHTML = `<p class="engine-badge ${isGemini ? 'gemini' : ''} mb-2">${engineLabel}</p>` +
+                Object.entries(data).map(([lang, val]) =>
+                    `<div class="p-2 border-b border-white/5 flex justify-between"><span class="text-[10px] mono text-teal-400">${lang}</span><span class="text-xs">${val}</span></div>`
+                ).join('');
+        } catch (e) {
+            results.innerHTML = `<span class="text-red-400 text-xs mono">${e.message}</span>`;
+        }
+    }
+
+    // Visual Audit — multimodal, requires Gemini key
+    async function performVisualAudit(input) {
+        const file = input.files[0];
+        if (!file) return;
+        if (!_oGateKey) {
+            document.getElementById('visual-audit-result').innerText = 'Visual audit requires Gemini multimodal API. Open ◈ and commit your Gemini key to unlock.';
+            document.getElementById('visual-audit-result').classList.remove('hidden');
+            return;
+        }
+        const loader = document.getElementById('visual-audit-loading');
+        const result = document.getElementById('visual-audit-result');
+        loader.classList.remove('hidden');
+        result.classList.add('hidden');
+        try {
+            const b64 = await new Promise(r => { const rd = new FileReader(); rd.onload = e => r(e.target.result.split(',')[1]); rd.readAsDataURL(file); });
+            const res = await apiRequest({
+                contents: [{ parts: [{ inline_data: { mime_type: file.type, data: b64 } }, { text: 'Analyze for Protocol O compliance. Be concise.' }] }]
+            });
+            result.innerText = '[Gemini · O-Gate] ' + res.candidates[0].content.parts[0].text;
+        } catch (e) {
+            result.innerText = e.message;
+        }
+        loader.classList.add('hidden');
+        result.classList.remove('hidden');
+    }
+
     // --- SCANNER B ---
     async function runBodyScanner() {
         const payload = document.getElementById('scanner-url-payload').value.trim();
@@ -842,6 +976,7 @@ Do not include any headings, labels, or metadata — only the seal body text.`;
         const statusEl = document.getElementById('scanner-status');
         const bodyEl = document.getElementById('scanner-body');
         const countEl = document.getElementById('scanner-match-count');
+        const badgeEl = document.getElementById('scanner-engine-badge');
         if (!payload) return;
         resultEl.classList.remove('hidden');
         statusEl.innerText = 'SCANNING...';
@@ -849,15 +984,23 @@ Do not include any headings, labels, or metadata — only the seal body text.`;
         bodyEl.innerHTML = '<div class="ai-loading mx-auto"></div>';
         countEl.innerText = '';
         try {
-            const res = await apiRequest({ contents: [{ parts: [{ text: payload }] }], systemInstruction: { parts: [{ text: 'Answer concisely and precisely.' }] } });
-            const rawBody = JSON.stringify(res, null, 2);
-            let displayBody = rawBody, matchCount = 0;
+            const result = await smartRequest(
+                payload,
+                'Answer concisely and precisely.'
+            );
+            badgeEl.innerText = result.engine;
+            badgeEl.className = 'engine-badge ml-auto' + (result.engine.includes('Gemini') ? ' gemini' : '');
+
+            // For scanner, wrap result in a pseudo-response JSON for pattern matching
+            const pseudoBody = JSON.stringify({ response: result.text, engine: result.engine }, null, 2);
+            let displayBody = pseudoBody, matchCount = 0;
+
             if (pattern) {
                 try {
                     const rx = new RegExp(pattern, 'gi');
-                    const matches = rawBody.match(rx);
+                    const matches = pseudoBody.match(rx);
                     matchCount = matches ? matches.length : 0;
-                    displayBody = rawBody.replace(rx, m => `«${m}»`);
+                    displayBody = pseudoBody.replace(rx, m => `«${m}»`);
                     if (matchCount > 0) {
                         statusEl.innerText = `MATCH — ${matchCount}x FOUND`;
                         statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-emerald-500/20 text-emerald-400';
@@ -902,12 +1045,20 @@ Do not include any headings, labels, or metadata — only the seal body text.`;
         const t0 = performance.now();
         try {
             let res, url;
-            if (target === 'gemini-models') {
-                if (!_oGateKey) throw new Error('API key required — open O-Gate sublayer (◈)');
+            if (target === 'pollinations-ping') {
+                // Free keyless probe — always works
+                url = 'https://text.pollinations.ai/openai';
+                res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ model: 'openai', messages: [{ role: 'user', content: 'ping' }], max_tokens: 5 })
+                });
+            } else if (target === 'gemini-models') {
+                if (!_oGateKey) throw new Error('Gemini key required — open ◈ to commit.');
                 url = `https://generativelanguage.googleapis.com/v1beta/models?key=${_oGateKey}`;
                 res = await fetch(url);
             } else if (target === 'gemini-ping') {
-                if (!_oGateKey) throw new Error('API key required — open O-Gate sublayer (◈)');
+                if (!_oGateKey) throw new Error('Gemini key required — open ◈ to commit.');
                 url = `https://generativelanguage.googleapis.com/v1beta/models/${TEXT_MODEL}:generateContent?key=${_oGateKey}`;
                 res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: 'ping' }] }] }) });
             } else {
@@ -920,7 +1071,7 @@ Do not include any headings, labels, or metadata — only the seal body text.`;
             latencyEl.innerText = `${latency}ms`;
             if (res.ok) {
                 dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
-                statusText.innerText = `HTTP ${res.status} — ONLINE — ${url.split('/').slice(3, 6).join('/')}`;
+                statusText.innerText = `HTTP ${res.status} — ONLINE`;
                 statusText.className = 'text-[10px] mono text-emerald-400';
             } else {
                 dot.className = 'w-2 h-2 rounded-full bg-red-400';
@@ -954,73 +1105,6 @@ Do not include any headings, labels, or metadata — only the seal body text.`;
             });
         }
         return lines.join('\n');
-    }
-
-    // --- CORE FUNCTIONS ---
-    async function askInnerMind() {
-        const input = document.getElementById('ai-query').value;
-        if (!input) return;
-        const container = document.getElementById('ai-response-container');
-        const loader = document.getElementById('probe-loading');
-        const responseEl = document.getElementById('ai-response');
-        container.classList.remove('hidden');
-        loader.classList.remove('hidden');
-        responseEl.innerText = '';
-        try {
-            const res = await apiRequest({ contents: [{ parts: [{ text: input }] }], systemInstruction: { parts: [{ text: `You are Protocol O inner mind. Answer poetically and concisely in: ${activeAppLang.toUpperCase()}` }] } });
-            responseEl.innerText = res.candidates[0].content.parts[0].text;
-        } catch (e) { responseEl.innerText = e.message; }
-        loader.classList.add('hidden');
-    }
-
-    async function processQA() {
-        const input = document.getElementById('qa-input').value;
-        if (!input) return;
-        const container = document.getElementById('qa-result-container');
-        const statusEl = document.getElementById('qa-status');
-        const answerEl = document.getElementById('qa-answer');
-        const loader = document.getElementById('qa-loading');
-        container.classList.remove('hidden');
-        loader.classList.remove('hidden');
-        answerEl.innerText = '';
-        try {
-            const res = await apiRequest({ contents: [{ parts: [{ text: input }] }], systemInstruction: { parts: [{ text: `Jsi Protocol O Analyzer. Taguj: [CODE_AUDIT] nebo [SEMANTIC]. Odpovídej: ${activeAppLang.toUpperCase()}.` }] } });
-            const text = res.candidates[0].content.parts[0].text;
-            loader.classList.add('hidden');
-            if (text.includes('[CODE_AUDIT]')) { statusEl.innerText = 'CODEBASE AUDIT'; statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-blue-500/20 text-blue-400'; }
-            else { statusEl.innerText = 'SEMANTIC SYNC'; statusEl.className = 'text-[10px] mono font-bold px-3 py-1 rounded bg-green-500/20 text-green-400'; }
-            answerEl.innerText = text.replace(/\[.*?\]/g, '').trim();
-        } catch (e) { loader.classList.add('hidden'); statusEl.innerText = 'ERROR'; answerEl.innerText = e.message; }
-    }
-
-    async function runMultiVectTranslation() {
-        const input = document.getElementById('multi-lang-input').value;
-        const results = document.getElementById('multi-lang-results');
-        results.innerHTML = '<div class="ai-loading mx-auto mt-10"></div>';
-        try {
-            const res = await apiRequest({ contents: [{ parts: [{ text: input }] }], systemInstruction: { parts: [{ text: 'Translate to EN, DE, FR, ES. Return ONLY valid JSON: {"EN":"...","DE":"...","FR":"...","ES":"..."}' }] } });
-            const data = JSON.parse(res.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim());
-            results.innerHTML = '';
-            Object.entries(data).forEach(([lang, val]) => {
-                results.innerHTML += `<div class="p-2 border-b border-white/5 flex justify-between"><span class="text-[10px] mono text-teal-400">${lang}</span><span class="text-xs">${val}</span></div>`;
-            });
-        } catch (e) { results.innerHTML = `<span class="text-red-400 text-xs">${e.message}</span>`; }
-    }
-
-    async function performVisualAudit(input) {
-        const file = input.files[0];
-        if (!file) return;
-        const loader = document.getElementById('visual-audit-loading');
-        const result = document.getElementById('visual-audit-result');
-        loader.classList.remove('hidden');
-        result.classList.add('hidden');
-        try {
-            const b64 = await new Promise(r => { const rd = new FileReader(); rd.onload = e => r(e.target.result.split(',')[1]); rd.readAsDataURL(file); });
-            const res = await apiRequest({ contents: [{ parts: [{ inline_data: { mime_type: file.type, data: b64 } }, { text: 'Analyze for Protocol O compliance. Be concise.' }] }] });
-            result.innerText = res.candidates[0].content.parts[0].text;
-        } catch (e) { result.innerText = e.message; }
-        loader.classList.add('hidden');
-        result.classList.remove('hidden');
     }
 
     function triggerVoiceBriefing() {
