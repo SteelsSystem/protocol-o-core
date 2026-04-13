@@ -3,342 +3,572 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Protocol O-Core — IAP Binary Gate</title>
+<title>Protocol O-Core</title>
 <style>
 :root{
-  --bg:#0e0e0f;--surface:#16161a;--surface2:#1e1e24;--border:#2a2a33;
-  --text:#d4d3d1;--muted:#6b6a68;--faint:#3a3a40;
-  --true:#2e7d54;--true-hi:#3dab72;--true-glow:rgba(61,171,114,.18);
-  --false:#7d2e2e;--false-hi:#c05050;--false-glow:rgba(192,80,80,.18);
-  --warn:#8a6a1a;--warn-hi:#d4a22a;
-  --bit-on:#4f98a3;--bit-off:#2a2a33;
+  --bg:#0c0c0e;--surface:#13131a;--surface2:#1a1a22;--surface3:#21212b;
+  --border:#252530;--border2:#2e2e3a;
+  --text:#cccbd0;--muted:#6a697a;--faint:#353545;
+  --true-hi:#3dab72;--true-glow:rgba(61,171,114,.15);--true-dim:#1e4a36;
+  --false-hi:#c05060;--false-glow:rgba(192,80,96,.15);--false-dim:#4a1e26;
+  --warn-hi:#d4a22a;--warn-glow:rgba(212,162,42,.12);--warn-dim:#4a3810;
+  --blue:#4f98a3;--blue-glow:rgba(79,152,163,.12);
+  --pub-hi:#5b9cf6;--pub-glow:rgba(91,156,246,.12);
   --font-mono:'JetBrains Mono','Fira Code','Courier New',monospace;
   --font-ui:'Inter','Segoe UI',sans-serif;
-  --r:6px;--tr:160ms cubic-bezier(.16,1,.3,1);
+  --r:6px;--r2:10px;--tr:160ms cubic-bezier(.16,1,.3,1);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:var(--font-ui);font-size:15px;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:32px 16px 64px}
-h1{font-family:var(--font-mono);font-size:13px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:4px}
-.subtitle{font-size:11px;color:var(--faint);letter-spacing:.08em;margin-bottom:40px;font-family:var(--font-mono)}
+body{background:var(--bg);color:var(--text);font-family:var(--font-ui);font-size:14px;
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:28px 12px 80px}
 
-/* GATE PANEL */
-.gate-panel{width:100%;max-width:640px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:28px 24px;margin-bottom:20px}
-.gate-title{font-family:var(--font-mono);font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:20px}
+.hdr{width:100%;max-width:900px;margin-bottom:28px;display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:14px}
+.hdr-title{font-family:var(--font-mono);font-size:12px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.hdr-sub{font-size:10px;color:var(--faint);letter-spacing:.07em;font-family:var(--font-mono);margin-top:3px}
+.hdr-ts{font-family:var(--font-mono);font-size:10px;color:var(--faint)}
 
-/* BIT CONTROLS */
-.bits-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
-.bit-btn{
-  background:var(--bit-off);border:1px solid var(--border);border-radius:var(--r);
-  padding:14px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;
+.layout{width:100%;max-width:900px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:680px){.layout{grid-template-columns:1fr}}
+.col-full{grid-column:1/-1}
+
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:20px 18px}
+.panel-title{font-family:var(--font-mono);font-size:10px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px}
+
+/* MODE BADGE */
+.mode-badge{
+  display:flex;align-items:center;gap:10px;padding:14px 16px;
+  border-radius:var(--r);border:1px solid var(--border);background:var(--surface2);
   transition:background var(--tr),border-color var(--tr),box-shadow var(--tr);
+  margin-bottom:14px;
+}
+.mode-badge.m-publish{background:var(--pub-glow);border-color:var(--pub-hi);box-shadow:0 0 20px var(--pub-glow)}
+.mode-badge.m-anomaly{background:var(--false-glow);border-color:var(--false-hi);box-shadow:0 0 20px var(--false-glow)}
+.mode-badge.m-forced{background:var(--warn-glow);border-color:var(--warn-hi);box-shadow:0 0 20px var(--warn-glow)}
+.mode-badge.m-preview{background:var(--warn-glow);border-color:var(--warn-hi)}
+.mode-badge.m-blocked{background:var(--false-glow);border-color:var(--false-hi)}
+.mode-icon{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface3);flex-shrink:0}
+.mode-icon svg{width:16px;height:16px}
+.mode-label{font-family:var(--font-mono);font-size:13px;font-weight:700;letter-spacing:.06em}
+.mode-badge.m-publish .mode-label{color:var(--pub-hi)}
+.mode-badge.m-anomaly .mode-label{color:var(--false-hi)}
+.mode-badge.m-forced  .mode-label{color:var(--warn-hi)}
+.mode-badge.m-preview .mode-label{color:var(--warn-hi)}
+.mode-badge.m-blocked .mode-label{color:var(--false-hi)}
+.mode-sub{font-size:10px;color:var(--muted);font-family:var(--font-mono)}
+
+/* O GATE VALUE */
+.o-gate-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.eq-display{font-family:var(--font-mono);font-size:11px;color:var(--muted);line-height:1.9}
+.eq-b{transition:color var(--tr)}.eq-b.on{color:var(--blue)}.eq-b.off{color:var(--faint)}
+.eq-m{transition:color var(--tr),text-decoration var(--tr)}
+.eq-m.killed{color:var(--false-hi);text-decoration:line-through;opacity:.6}
+.o-val{font-family:var(--font-mono);font-size:44px;font-weight:800;transition:color var(--tr),text-shadow var(--tr)}
+.o-val.v1{color:var(--true-hi);text-shadow:0 0 30px var(--true-glow)}
+.o-val.v0{color:var(--false-hi);text-shadow:0 0 30px var(--false-glow)}
+.vec-map{font-family:var(--font-mono);font-size:10px;color:var(--faint);margin-top:4px}
+
+/* CHECKS */
+.checks-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.check-btn{
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);
+  padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;
+  transition:background var(--tr),border-color var(--tr);
   font-family:var(--font-mono);
 }
-.bit-btn[data-v="1"]{background:color-mix(in oklch,var(--bit-on) 20%,var(--surface));border-color:var(--bit-on);box-shadow:0 0 0 1px var(--bit-on) inset}
-.bit-btn:active{transform:scale(.97)}
-.bit-label{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
-.bit-val{font-size:22px;font-weight:700;color:var(--faint);transition:color var(--tr)}
-.bit-btn[data-v="1"] .bit-val{color:var(--bit-on)}
+.check-btn[data-v="1"]{background:color-mix(in oklch,var(--blue) 12%,var(--surface2));border-color:var(--blue)}
+.check-btn[data-v="0"]{opacity:.7}
+.check-btn:active{transform:scale(.98)}
+.check-indicator{width:10px;height:10px;border-radius:50%;background:var(--faint);transition:background var(--tr);flex-shrink:0}
+.check-btn[data-v="1"] .check-indicator{background:var(--blue)}
+.check-info{display:flex;flex-direction:column;gap:2px;min-width:0}
+.check-name{font-size:11px;color:var(--text);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.check-weight{font-size:9px;color:var(--faint);letter-spacing:.06em}
+.check-btn[data-v="1"] .check-name{color:var(--blue)}
 
 /* MODIFIERS */
-.mods-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
+.mods-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
 .mod-btn{
   background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);
-  padding:12px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;
-  font-family:var(--font-mono);font-size:12px;color:var(--muted);letter-spacing:.06em;
+  padding:11px 14px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;
+  font-family:var(--font-mono);font-size:11px;color:var(--muted);letter-spacing:.05em;
   transition:background var(--tr),border-color var(--tr);
 }
-.mod-btn[data-v="1"].anom{background:color-mix(in oklch,var(--false-hi) 15%,var(--surface2));border-color:var(--false-hi);color:var(--false-hi)}
-.mod-btn[data-v="1"].force{background:color-mix(in oklch,var(--warn-hi) 15%,var(--surface2));border-color:var(--warn-hi);color:var(--warn-hi)}
-.mod-indicator{width:8px;height:8px;border-radius:50%;background:var(--faint);transition:background var(--tr)}
-.mod-btn[data-v="1"].anom .mod-indicator{background:var(--false-hi)}
-.mod-btn[data-v="1"].force .mod-indicator{background:var(--warn-hi)}
+.mod-btn.anom[data-v="1"]{background:var(--false-glow);border-color:var(--false-hi);color:var(--false-hi)}
+.mod-btn.force[data-v="1"]{background:var(--warn-glow);border-color:var(--warn-hi);color:var(--warn-hi)}
+.mod-dot{width:8px;height:8px;border-radius:50%;background:var(--faint);transition:background var(--tr)}
+.mod-btn.anom[data-v="1"] .mod-dot{background:var(--false-hi)}
+.mod-btn.force[data-v="1"] .mod-dot{background:var(--warn-hi)}
 
-/* EQUATION */
-.equation{font-family:var(--font-mono);font-size:12px;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;margin-bottom:24px;letter-spacing:.04em;line-height:1.8}
-.eq-part{transition:color var(--tr),opacity var(--tr)}
-.eq-part.active{color:var(--bit-on)}
-.eq-part.killed{color:var(--false-hi);text-decoration:line-through;opacity:.5}
-
-/* OUTPUT */
-.output-box{
-  border-radius:var(--r);padding:20px 24px;display:flex;align-items:center;justify-content:space-between;
-  transition:background var(--tr),border-color var(--tr),box-shadow var(--tr);
-  border:1px solid var(--border);background:var(--surface2);
+/* ACTION BTNS */
+.action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.act-btn{
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  padding:9px 14px;border-radius:var(--r);cursor:pointer;border:1px solid var(--border);
+  background:var(--surface2);color:var(--muted);
+  transition:background var(--tr),border-color var(--tr),color var(--tr);
 }
-.output-box.out-true{background:var(--true-glow);border-color:var(--true-hi);box-shadow:0 0 24px var(--true-glow)}
-.output-box.out-false{background:var(--false-glow);border-color:var(--false-hi);box-shadow:0 0 24px var(--false-glow)}
-.out-label{font-family:var(--font-mono);font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
-.out-value{font-family:var(--font-mono);font-size:32px;font-weight:800;color:var(--faint);transition:color var(--tr),text-shadow var(--tr)}
-.output-box.out-true .out-value{color:var(--true-hi);text-shadow:0 0 20px var(--true-glow)}
-.output-box.out-false .out-value{color:var(--false-hi);text-shadow:0 0 20px var(--false-glow)}
-.out-reason{font-size:11px;color:var(--muted);font-family:var(--font-mono);margin-top:4px}
+.act-btn:hover{color:var(--text);border-color:var(--muted)}
+.act-btn.recal{border-color:var(--blue);color:var(--blue)}
+.act-btn.recal:hover{background:color-mix(in oklch,var(--blue) 15%,var(--surface2))}
+.act-btn.forcef{border-color:var(--warn-hi);color:var(--warn-hi)}
+.act-btn.forcef:hover{background:color-mix(in oklch,var(--warn-hi) 15%,var(--surface2))}
+.act-btn:disabled{opacity:.3;cursor:not-allowed}
+
+/* O-SPACE SVG */
+.ospace-wrap{position:relative;aspect-ratio:1;border-radius:var(--r);overflow:hidden;background:var(--bg);border:1px solid var(--border)}
+.ospace-wrap svg{width:100%;height:100%}
+
+/* SCORE BAR */
+.score-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.score-label{font-family:var(--font-mono);font-size:10px;color:var(--muted)}
+.score-val{font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--text)}
+.score-bar{height:4px;background:var(--surface3);border-radius:99px;overflow:hidden;margin-bottom:14px}
+.score-fill{height:100%;border-radius:99px;transition:width .4s cubic-bezier(.16,1,.3,1),background .4s}
 
 /* SEQUENCE TABLE */
-.seq-panel{width:100%;max-width:640px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px;margin-bottom:20px}
-.seq-title{font-family:var(--font-mono);font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px}
 table{width:100%;border-collapse:collapse}
-th{font-family:var(--font-mono);font-size:10px;color:var(--faint);letter-spacing:.08em;text-transform:uppercase;text-align:left;padding:6px 10px;border-bottom:1px solid var(--border)}
-td{font-family:var(--font-mono);font-size:12px;padding:8px 10px;border-bottom:1px solid color-mix(in oklch,var(--border) 50%,transparent);transition:color var(--tr),background var(--tr)}
-tr.seq-pass td{color:var(--true-hi)}
-tr.seq-fail td{color:var(--false-hi)}
-tr.seq-warn td{color:var(--warn-hi)}
-tr.seq-active td{color:var(--bit-on);background:color-mix(in oklch,var(--bit-on) 6%,transparent)}
-tr.seq-init td:first-child{color:var(--muted)}
+th{font-family:var(--font-mono);font-size:9px;color:var(--faint);letter-spacing:.1em;text-transform:uppercase;
+   text-align:left;padding:5px 8px;border-bottom:1px solid var(--border)}
+td{font-family:var(--font-mono);font-size:11px;padding:7px 8px;
+   border-bottom:1px solid color-mix(in oklch,var(--border) 40%,transparent);
+   transition:color var(--tr),background var(--tr)}
+tr.sq-active td{color:var(--blue);background:color-mix(in oklch,var(--blue) 5%,transparent)}
+tr.sq-pass td{color:var(--true-hi)}
+tr.sq-fail td{color:var(--false-hi)}
+tr.sq-warn td{color:var(--warn-hi)}
 
-/* HISTORY */
-.history-panel{width:100%;max-width:640px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px}
-.history-title{font-family:var(--font-mono);font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
-.clear-btn{font-size:10px;color:var(--faint);cursor:pointer;background:none;border:none;font-family:var(--font-mono);letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:3px;transition:color var(--tr)}
-.clear-btn:hover{color:var(--muted)}
-.history-list{display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto}
-.history-item{display:flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:11px;color:var(--muted);padding:6px 10px;background:var(--surface2);border-radius:4px;border-left:2px solid var(--border);animation:fadeIn .2s ease}
-.history-item.h-true{border-left-color:var(--true-hi)}
-.history-item.h-false{border-left-color:var(--false-hi)}
-.history-item .h-out{font-weight:700;min-width:44px}
-.history-item.h-true .h-out{color:var(--true-hi)}
-.history-item.h-false .h-out{color:var(--false-hi)}
-.history-item .h-bits{color:var(--faint);font-size:10px}
-.empty-history{color:var(--faint);font-size:11px;font-family:var(--font-mono);text-align:center;padding:20px}
-@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-
-/* RESET */
-.reset-btn{
-  margin-top:20px;font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--muted);background:none;border:1px solid var(--border);border-radius:var(--r);
-  padding:8px 20px;cursor:pointer;transition:color var(--tr),border-color var(--tr);
+/* FORENSIC */
+.findings-list{display:flex;flex-direction:column;gap:6px;min-height:44px}
+.finding{
+  font-family:var(--font-mono);font-size:11px;padding:8px 12px;
+  border-radius:4px;border-left:2px solid var(--false-hi);
+  background:color-mix(in oklch,var(--false-hi) 8%,var(--surface2));
+  color:var(--false-hi);animation:fadeIn .2s ease;
 }
-.reset-btn:hover{color:var(--text);border-color:var(--muted)}
+.finding.finding-warn{border-left-color:var(--warn-hi);background:color-mix(in oklch,var(--warn-hi) 8%,var(--surface2));color:var(--warn-hi)}
+.finding.finding-ok{border-left-color:var(--true-hi);background:color-mix(in oklch,var(--true-hi) 8%,var(--surface2));color:var(--true-hi)}
+.no-findings{font-family:var(--font-mono);font-size:11px;color:var(--faint);text-align:center;padding:16px}
+
+/* EXEC LOG */
+.log-list{display:flex;flex-direction:column;gap:5px;max-height:180px;overflow-y:auto}
+.log-item{
+  display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:10px;
+  color:var(--muted);padding:5px 8px;background:var(--surface2);border-radius:4px;
+  border-left:2px solid var(--border);animation:fadeIn .15s ease;
+}
+.log-item.l-true{border-left-color:var(--true-hi)}
+.log-item.l-false{border-left-color:var(--false-hi)}
+.l-out{font-weight:700;min-width:40px}
+.log-item.l-true .l-out{color:var(--true-hi)}
+.log-item.l-false .l-out{color:var(--false-hi)}
+.l-bits{color:var(--faint);font-size:9px}
+.l-mode{color:var(--muted);font-size:9px;flex:1;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.l-ts{color:var(--faint);font-size:9px;flex-shrink:0}
+.log-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.clr-btn{font-size:9px;color:var(--faint);cursor:pointer;background:none;border:none;font-family:var(--font-mono);letter-spacing:.07em;text-transform:uppercase;padding:2px 5px;border-radius:3px;transition:color var(--tr)}
+.clr-btn:hover{color:var(--muted)}
+.empty-log{font-family:var(--font-mono);font-size:10px;color:var(--faint);text-align:center;padding:16px}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.aligning .mode-label{animation:pulse .8s infinite}
 </style>
 </head>
 <body>
 
-<h1>Protocol O-Core</h1>
-<div class="subtitle">IAP — Intensity Alignment Process · Binary Gate Only · No Language Logic</div>
-
-<!-- GATE -->
-<div class="gate-panel">
-  <div class="gate-title">O-Gate Input</div>
-
-  <div class="bits-grid">
-    <button class="bit-btn" id="b1" data-v="0" onclick="toggleBit('b1')">
-      <span class="bit-label">B1</span>
-      <span class="bit-val">0</span>
-    </button>
-    <button class="bit-btn" id="b2" data-v="0" onclick="toggleBit('b2')">
-      <span class="bit-label">B2</span>
-      <span class="bit-val">0</span>
-    </button>
-    <button class="bit-btn" id="b3" data-v="0" onclick="toggleBit('b3')">
-      <span class="bit-label">B3</span>
-      <span class="bit-val">0</span>
-    </button>
-    <button class="bit-btn" id="b4" data-v="0" onclick="toggleBit('b4')">
-      <span class="bit-label">B4</span>
-      <span class="bit-val">0</span>
-    </button>
+<div class="hdr">
+  <div>
+    <div class="hdr-title">Protocol O-Core</div>
+    <div class="hdr-sub">CERT INTEGRITY · IAP Binary Gate · ProtocolSimulator_final</div>
   </div>
+  <div class="hdr-ts" id="ts"></div>
+</div>
 
-  <div class="mods-row">
-    <button class="mod-btn anom" id="anom" data-v="0" onclick="toggleMod('anom')">
-      <span>ANOMALY</span>
-      <span class="mod-indicator"></span>
-    </button>
-    <button class="mod-btn force" id="force" data-v="0" onclick="toggleMod('force')">
-      <span>FORCE·O·FALSE</span>
-      <span class="mod-indicator"></span>
-    </button>
-  </div>
+<div class="layout">
 
-  <div class="equation" id="eq">
-    O = (<span class="eq-part" id="eq-b1">B1</span> &amp;
-         <span class="eq-part" id="eq-b2">B2</span> &amp;
-         <span class="eq-part" id="eq-b3">B3</span> &amp;
-         <span class="eq-part" id="eq-b4">B4</span>) &amp;
-        ~<span class="eq-part" id="eq-anom">ANOM</span> &amp;
-        ~<span class="eq-part" id="eq-force">FORCE</span>
-  </div>
+  <!-- LEFT: GATE CONTROL -->
+  <div class="panel">
+    <div class="panel-title">O-Gate Control</div>
 
-  <div class="output-box" id="output-box">
-    <div>
-      <div class="out-label">Output</div>
-      <div class="out-reason" id="out-reason">—</div>
+    <div class="mode-badge" id="mode-badge">
+      <div class="mode-icon" id="mode-icon"></div>
+      <div>
+        <div class="mode-label" id="mode-label">—</div>
+        <div class="mode-sub" id="mode-sub">—</div>
+      </div>
     </div>
-    <div class="out-value" id="out-value">0</div>
-  </div>
-</div>
 
-<!-- SEQUENCE -->
-<div class="seq-panel">
-  <div class="seq-title">CERT INTEGRITY / PROTOCOL — Sequence</div>
-  <table>
-    <thead>
-      <tr>
-        <th>Phase</th>
-        <th>Systém</th>
-        <th>Objekt O</th>
-        <th>Pravidlo R</th>
-        <th>Alignment</th>
-      </tr>
-    </thead>
-    <tbody id="seq-body"></tbody>
-  </table>
-</div>
+    <div class="o-gate-row">
+      <div>
+        <div class="eq-display" id="eq-display"></div>
+        <div class="vec-map" id="vec-map"></div>
+      </div>
+      <div style="text-align:right">
+        <div class="o-val" id="o-val">0</div>
+        <div style="font-family:var(--font-mono);font-size:9px;color:var(--faint)">O(s)</div>
+      </div>
+    </div>
 
-<!-- HISTORY -->
-<div class="history-panel">
-  <div class="history-title">
-    <span>Execution Log</span>
-    <button class="clear-btn" onclick="clearHistory()">CLEAR</button>
-  </div>
-  <div class="history-list" id="history-list">
-    <div class="empty-history">— no executions yet —</div>
-  </div>
-</div>
+    <div style="margin-bottom:10px">
+      <div class="score-row">
+        <span class="score-label">Regularity Score</span>
+        <span class="score-val" id="score-val">0</span>
+      </div>
+      <div class="score-bar"><div class="score-fill" id="score-fill"></div></div>
+    </div>
 
-<button class="reset-btn" onclick="resetAll()">RESET ALL</button>
+    <div class="checks-grid">
+      <button class="check-btn" id="c1" data-v="1" onclick="toggleCheck('c1')">
+        <div class="check-indicator"></div>
+        <div class="check-info"><span class="check-name">Structural</span><span class="check-weight">Weight: 35</span></div>
+      </button>
+      <button class="check-btn" id="c2" data-v="1" onclick="toggleCheck('c2')">
+        <div class="check-indicator"></div>
+        <div class="check-info"><span class="check-name">Int. Sequence</span><span class="check-weight">Weight: 35</span></div>
+      </button>
+      <button class="check-btn" id="c3" data-v="1" onclick="toggleCheck('c3')">
+        <div class="check-indicator"></div>
+        <div class="check-info"><span class="check-name">Cross-Check</span><span class="check-weight">Weight: 15</span></div>
+      </button>
+      <button class="check-btn" id="c4" data-v="1" onclick="toggleCheck('c4')">
+        <div class="check-indicator"></div>
+        <div class="check-info"><span class="check-name">Regulatory</span><span class="check-weight">Weight: 15</span></div>
+      </button>
+    </div>
+
+    <div class="mods-row">
+      <button class="mod-btn anom" id="anom" data-v="0" onclick="toggleMod('anom')">
+        <span>ANOMALY</span><div class="mod-dot"></div>
+      </button>
+      <button class="mod-btn force" id="force" data-v="0" onclick="toggleForce()">
+        <span>FORCE·O·FALSE</span><div class="mod-dot"></div>
+      </button>
+    </div>
+
+    <div class="action-row">
+      <button class="act-btn recal" id="recal-btn" onclick="handleRecalibrate()">Recalibrate</button>
+      <button class="act-btn" onclick="resetAll()">Reset</button>
+    </div>
+  </div>
+
+  <!-- RIGHT: O-SPACE -->
+  <div class="panel">
+    <div class="panel-title">O-Space Projection</div>
+    <div class="ospace-wrap">
+      <svg id="ospace" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+  </div>
+
+  <!-- SEQUENCE TABLE -->
+  <div class="panel">
+    <div class="panel-title">Sequence — INICIACE → UZAVŘENÍ</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Phase</th><th>Systém</th><th>Obj O</th><th>Pravidlo R</th><th>Alignment</th>
+        </tr>
+      </thead>
+      <tbody id="seq-body"></tbody>
+    </table>
+  </div>
+
+  <!-- FORENSIC FINDINGS -->
+  <div class="panel">
+    <div class="panel-title">Forensic Findings</div>
+    <div class="findings-list" id="findings-list"></div>
+  </div>
+
+  <!-- EXEC LOG -->
+  <div class="panel col-full">
+    <div class="log-hdr">
+      <div class="panel-title" style="margin-bottom:0">Execution Log</div>
+      <button class="clr-btn" onclick="clearLog()">CLEAR</button>
+    </div>
+    <div class="log-list" id="log-list">
+      <div class="empty-log">— no executions yet —</div>
+    </div>
+  </div>
+
+</div>
 
 <script>
-// STATE — pure bits only, no string logic
-const S = { b1:0, b2:0, b3:0, b4:0, anom:0, force:0 }
-const history = []
+// ─── SEEDED RNG (matches JSX seededRandom(42)) ────────────────────────────────
+function seededRandom(seed){
+  let s=seed
+  return()=>{ s=(s*9301+49297)%233280; return s/233280 }
+}
 
-// SEQUENCE PHASES
-const PHASES = [
-  { id:'init',   label:'INICIACE',    sys:'boot',       obj:'—',    rule:'—',      align:'—'       },
-  { id:'fp',     label:'FIXED-POINT', sys:'evaluate',   obj:'O(s)', rule:'R∩O',    align:'check'   },
-  { id:'close',  label:'UZAVŘENÍ',    sys:'finalize',   obj:'O',    rule:'R',      align:'commit'  },
+// ─── O-SPACE HISTORY POINTS (deterministic, seed 42) ─────────────────────────
+const rng=seededRandom(42)
+const HIST_PTS=Array.from({length:40},(_,i)=>{
+  const isOut=rng()>0.85
+  const radius=isOut?35+rng()*15:rng()*12
+  const angle=(i/40)*2*Math.PI
+  return{x:50+radius*Math.cos(angle),y:50+radius*Math.sin(angle),opacity:isOut?0.2:0.5}
+})
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+const S={c1:1,c2:1,c3:1,c4:1,anom:0,force:0,aligning:0}
+const execLog=[]
+let recalTimer=null
+
+// ─── PURE BINARY GATE (no string, no truthy) ─────────────────────────────────
+function computeGate(c1,c2,c3,c4,anom,force){
+  const lp=c1&c2&c3&c4    // logical product — 1 only when ALL bits are 1
+  const am=anom===1?0:1    // anomaly kills
+  const fm=force===1?0:1   // force kills
+  return lp&am&fm          // strictly 0 or 1
+}
+
+// ─── SCORE (structural, no string inference) ─────────────────────────────────
+function computeScore(c1,c2,c3,c4,anom,force){
+  if(anom===1||force===1)return 15
+  return c1*35+c2*35+c3*15+c4*15
+}
+
+// ─── VECTOR MAP (bitfield) ────────────────────────────────────────────────────
+function vectorMap(c1,c2,c3,c4){
+  const v=(c1<<3)|(c2<<2)|(c3<<1)|c4
+  return'0x0'+v.toString(16).toUpperCase()
+}
+
+// ─── MODE RESOLUTION (structural map only) ───────────────────────────────────
+const MODES={
+  FORCED_FALSE:{ cls:'m-forced',   label:'O>FALSE OVERRIDE', sub:'force·false multiplier = 0', icon:'power' },
+  ANOMALY:     { cls:'m-anomaly',  label:'CRITICAL ANOMALY',  sub:'integrity multiplier collapsed', icon:'shield' },
+  PUBLISH:     { cls:'m-publish',  label:'PUBLIC OUTPUT',     sub:'all gates clear → O(s) = 1', icon:'unlock' },
+  PREVIEW:     { cls:'m-preview',  label:'INTERNAL PREVIEW',  sub:'partial gate — score ≥ 70', icon:'eye' },
+  BLOCKED:     { cls:'m-blocked',  label:'BLOCKED',           sub:'gate output = 0', icon:'lock' },
+  ALIGNING:    { cls:'m-preview',  label:'RECALIBRATING…',  sub:'alignment in progress', icon:'cpu' },
+}
+
+const MODE_ICONS={
+  power:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>',
+  shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+  unlock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>',
+  eye:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
+  lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+  cpu:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>',
+}
+
+function resolveMode(c1,c2,c3,c4,anom,force,score,O,aligning){
+  if(aligning===1)return'ALIGNING'
+  if(force===1)   return'FORCED_FALSE'
+  if(anom===1)    return'ANOMALY'
+  if(O===1)       return'PUBLISH'
+  if(c1===1&&c2===1&&score>=70)return'PREVIEW'
+  return'BLOCKED'
+}
+
+// ─── FORENSIC FINDINGS (structural, no string→bool) ──────────────────────────
+function computeFindings(c1,c2,c3,c4,anom,force){
+  const f=[]
+  if(force===1) f.push({t:'warn',msg:'OVERRIDE: [O>FALSE] O-Gate zeroed by multiplier = 0'})
+  if(anom===1)  f.push({t:'err', msg:'ANOMALY: Interference detected. Integrity multiplier collapsed to 0'})
+  if(c1===0)    f.push({t:'err', msg:'LOGIC_ERR (Bit 3): Structural integrity s(x) invalid'})
+  if(c2===0)    f.push({t:'err', msg:'LOGIC_ERR (Bit 2): Internal sequence fails logical operation'})
+  if(c3===0)    f.push({t:'err', msg:'SYS_ERR (Bit 1): External hash cross-match failed'})
+  if(c4===0)    f.push({t:'err', msg:'REG_ERR (Bit 0): Regulatory norm non-conformant with space vector'})
+  return f
+}
+
+// ─── SEQUENCE PHASES ─────────────────────────────────────────────────────────
+const PHASES=[
+  {id:'init',  label:'INICIACE',    sys:'boot',      obj:'—',    rule:'—',   align:'—'     },
+  {id:'fp',    label:'FIXED-POINT', sys:'evaluate',  obj:'O(s)', rule:'R∩O', align:'check' },
+  {id:'close', label:'UZAVŘENÍ',   sys:'finalize',  obj:'O',    rule:'R',   align:'commit'},
 ]
 
-// PURE BINARY GATE — no string, no truthy, no implicit cast
-function computeGate(b1, b2, b3, b4, anom, force) {
-  // Only 0|1 integers enter. XOR complement via subtraction from 1.
-  const lp   = b1 & b2 & b3 & b4   // logical product of input bits
-  const am   = anom  === 1 ? 0 : 1  // anomaly kills gate
-  const fm   = force === 1 ? 0 : 1  // force-false kills gate
-  return lp & am & fm               // result is strictly 0 or 1
+// ─── O-SPACE RENDER ───────────────────────────────────────────────────────────
+function renderOSpace(O,score,aligning){
+  const svg=document.getElementById('ospace')
+  const cx=50,cy=50
+  let px,py
+  if(aligning===1||O===1){px=cx;py=cy}
+  else{const off=(100-score)*0.4;px=cx+off;py=cy+off}
+
+  let html=''
+  // grid rings
+  ;[10,20,30,40].forEach(r=>{
+    html+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#252530" stroke-width="0.4"/>`
+  })
+  // crosshairs
+  html+=`<line x1="50" y1="5" x2="50" y2="95" stroke="#252530" stroke-width="0.3"/>`
+  html+=`<line x1="5" y1="50" x2="95" y2="50" stroke="#252530" stroke-width="0.3"/>`
+  // history points
+  HIST_PTS.forEach(p=>{
+    html+=`<circle cx="${p.x}" cy="${p.y}" r="1.2" fill="#4f98a3" opacity="${p.opacity}"/>`
+  })
+  // current case dot
+  const col=O===1?'#3dab72':(aligning===1?'#4f98a3':'#c05060')
+  const glowId='glow'+Date.now()
+  html+=`<defs><radialGradient id="${glowId}"><stop offset="0%" stop-color="${col}" stop-opacity="0.6"/><stop offset="100%" stop-color="${col}" stop-opacity="0"/></radialGradient></defs>`
+  html+=`<circle cx="${px}" cy="${py}" r="8" fill="url(#${glowId})" opacity="0.5"/>`
+  html+=`<circle cx="${px}" cy="${py}" r="3.5" fill="${col}" opacity="0.9"/>`
+  html+=`<circle cx="${cx}" cy="${cy}" r="1.5" fill="#252530"/>`
+  // label
+  const lbl=O===1?'O=1':(aligning===1?'…':'O=0')
+  html+=`<text x="${px+5}" y="${py-4}" font-size="4" fill="${col}" font-family="monospace" opacity="0.8">${lbl}</text>`
+  svg.innerHTML=html
 }
 
-// REASON — structural map, never string → boolean
-const REASON_MAP = {
-  // key: [lp, anom, force] → reason string
-  '0_0_0': 'input bits not satisfied',
-  '0_1_0': 'input bits not satisfied + anomaly active',
-  '0_0_1': 'input bits not satisfied + force·false active',
-  '0_1_1': 'input bits not satisfied + anomaly + force·false',
-  '1_0_0': 'all gates clear → output 1',
-  '1_1_0': 'anomaly killed output',
-  '1_0_1': 'force·false killed output',
-  '1_1_1': 'anomaly + force·false killed output',
-}
+// ─── MAIN RENDER ─────────────────────────────────────────────────────────────
+function render(){
+  const{c1,c2,c3,c4,anom,force,aligning}=S
+  const O    =computeGate(c1,c2,c3,c4,anom,force)
+  const score=computeScore(c1,c2,c3,c4,anom,force)
+  const vm   =vectorMap(c1,c2,c3,c4)
+  const mkey =resolveMode(c1,c2,c3,c4,anom,force,score,O,aligning)
+  const mode =mkey==='ALIGNING'?MODES.ALIGNING:MODES[mkey]
+  const lp   =c1&c2&c3&c4
 
-function getReason(lp, anom, force) {
-  return REASON_MAP[`${lp}_${anom}_${force}`] || '—'
-}
+  // Mode badge
+  const badge=document.getElementById('mode-badge')
+  badge.className='mode-badge '+mode.cls+(aligning===1?' aligning':'')
+  document.getElementById('mode-icon').innerHTML=MODE_ICONS[mode.icon]
+  document.getElementById('mode-label').textContent=mode.label
+  document.getElementById('mode-sub').textContent=mode.sub
 
-function toggleBit(id) {
-  S[id] = S[id] === 1 ? 0 : 1
-  render()
-  logExecution()
-}
+  // O value
+  const ov=document.getElementById('o-val')
+  ov.textContent=aligning===1?'…':String(O)
+  ov.className='o-val '+(O===1&&aligning===0?'v1':'v0')
 
-function toggleMod(id) {
-  S[id] = S[id] === 1 ? 0 : 1
-  render()
-  logExecution()
-}
+  // Equation
+  document.getElementById('eq-display').innerHTML=
+    `O(s) = (<span class="eq-b ${c1===1?'on':'off'}">B1</span> &amp;
+            <span class="eq-b ${c2===1?'on':'off'}">B2</span> &amp;
+            <span class="eq-b ${c3===1?'on':'off'}">B3</span> &amp;
+            <span class="eq-b ${c4===1?'on':'off'}">B4</span>) &amp;
+      ~<span class="eq-m ${anom===1?'killed':''}">ANOM</span> &amp;
+      ~<span class="eq-m ${force===1?'killed':''}">FORCE</span>`
+  document.getElementById('vec-map').textContent='bitfield: '+vm+' | lp='+lp
 
-function render() {
-  const { b1, b2, b3, b4, anom, force } = S
-  const lp = b1 & b2 & b3 & b4
-  const O  = computeGate(b1, b2, b3, b4, anom, force)
+  // Score bar
+  document.getElementById('score-val').textContent=score
+  const fill=document.getElementById('score-fill')
+  fill.style.width=score+'%'
+  fill.style.background=score>=100?'var(--true-hi)':score>=70?'var(--warn-hi)':'var(--false-hi)'
 
-  // Bit buttons
-  ;['b1','b2','b3','b4'].forEach(k => {
-    const el = document.getElementById(k)
-    el.dataset.v = String(S[k])
-    el.querySelector('.bit-val').textContent = String(S[k])
+  // Check buttons
+  ;['c1','c2','c3','c4'].forEach(k=>{
+    const el=document.getElementById(k)
+    el.dataset.v=String(S[k])
   })
 
   // Mod buttons
-  ;['anom','force'].forEach(k => {
-    document.getElementById(k).dataset.v = String(S[k])
-  })
+  document.getElementById('anom').dataset.v=String(anom)
+  document.getElementById('force').dataset.v=String(force)
 
-  // Equation highlights
-  ;['b1','b2','b3','b4'].forEach(k => {
-    const el = document.getElementById('eq-' + k)
-    el.className = 'eq-part' + (S[k] === 1 ? ' active' : '')
-  })
-  document.getElementById('eq-anom').className  = 'eq-part' + (anom  === 1 ? ' killed' : '')
-  document.getElementById('eq-force').className = 'eq-part' + (force === 1 ? ' killed' : '')
+  // Recal button
+  const rb=document.getElementById('recal-btn')
+  rb.disabled=aligning===1
 
-  // Output box
-  const box   = document.getElementById('output-box')
-  const val   = document.getElementById('out-value')
-  const rsn   = document.getElementById('out-reason')
-  box.className = 'output-box ' + (O === 1 ? 'out-true' : 'out-false')
-  val.textContent = String(O)
-  rsn.textContent = getReason(lp, anom, force)
-
-  // Sequence table
-  renderSequence(O, lp, anom, force)
-}
-
-function renderSequence(O, lp, anom, force) {
-  const tbody = document.getElementById('seq-body')
-  tbody.innerHTML = ''
-
-  PHASES.forEach((p, i) => {
-    const tr = document.createElement('tr')
-    let cls = 'seq-init'
-
-    if (p.id === 'init') {
-      cls = 'seq-active'
-    } else if (p.id === 'fp') {
-      if      (anom === 1 || force === 1) cls = 'seq-warn'
-      else if (lp === 1)                  cls = 'seq-pass'
-      else                                cls = 'seq-fail'
-    } else if (p.id === 'close') {
-      cls = O === 1 ? 'seq-pass' : 'seq-fail'
+  // Sequence
+  const tbody=document.getElementById('seq-body')
+  tbody.innerHTML=PHASES.map(p=>{
+    let cls=''
+    if(p.id==='init') cls=aligning===1?'sq-active':'sq-active'
+    else if(p.id==='fp'){
+      if(aligning===1)      cls='sq-active'
+      else if(anom===1||force===1)cls='sq-warn'
+      else if(lp===1)       cls='sq-pass'
+      else                  cls='sq-fail'
+    }else if(p.id==='close'){
+      if(aligning===1)cls='sq-active'
+      else cls=O===1?'sq-pass':'sq-fail'
     }
+    return`<tr class="${cls}"><td>${p.label}</td><td>${p.sys}</td><td>${p.obj}</td><td>${p.rule}</td><td>${p.align}</td></tr>`
+  }).join('')
 
-    tr.className = cls
-    tr.innerHTML = `<td>${p.label}</td><td>${p.sys}</td><td>${p.obj}</td><td>${p.rule}</td><td>${p.align}</td>`
-    tbody.appendChild(tr)
-  })
+  // Findings
+  const findings=computeFindings(c1,c2,c3,c4,anom,force)
+  const fl=document.getElementById('findings-list')
+  if(findings.length===0&&O===1){
+    fl.innerHTML='<div class="finding finding-ok">ALL CLEAR — O(s) = 1 — no anomalies detected</div>'
+  }else if(findings.length===0){
+    fl.innerHTML='<div class="no-findings">—</div>'
+  }else{
+    fl.innerHTML=findings.map(f=>
+      `<div class="finding${f.t==='warn'?' finding-warn':''}">  ${f.msg}</div>`
+    ).join('')
+  }
+
+  // O-Space
+  renderOSpace(O,score,aligning)
 }
 
-function logExecution() {
-  const { b1, b2, b3, b4, anom, force } = S
-  const lp = b1 & b2 & b3 & b4
-  const O  = computeGate(b1, b2, b3, b4, anom, force)
-  const ts = new Date().toTimeString().slice(0,8)
+// ─── HANDLERS ─────────────────────────────────────────────────────────────────
+function toggleCheck(k){
+  if(S.aligning===1)return
+  S[k]=S[k]===1?0:1
+  render()
+  logExec()
+}
+function toggleMod(k){
+  if(S.aligning===1)return
+  S[k]=S[k]===1?0:1
+  render()
+  logExec()
+}
+function toggleForce(){
+  if(S.aligning===1)return
+  S.force=1
+  render()
+  logExec()
+}
+function handleRecalibrate(){
+  if(S.aligning===1)return
+  S.aligning=1
+  S.force=0
+  render()
+  clearTimeout(recalTimer)
+  recalTimer=setTimeout(()=>{
+    S.anom=0
+    S.c1=1;S.c2=1;S.c3=1;S.c4=1
+    S.aligning=0
+    render()
+    logExec()
+  },2000)
+}
+function resetAll(){
+  clearTimeout(recalTimer)
+  Object.assign(S,{c1:1,c2:1,c3:1,c4:1,anom:0,force:0,aligning:0})
+  render()
+  logExec()
+}
+function clearLog(){
+  execLog.length=0
+  document.getElementById('log-list').innerHTML='<div class="empty-log">— no executions yet —</div>'
+}
 
-  history.unshift({ O, b1, b2, b3, b4, anom, force, ts, reason: getReason(lp, anom, force) })
-  if (history.length > 40) history.pop()
-
-  const list = document.getElementById('history-list')
-  list.innerHTML = history.map(h =>
-    `<div class="history-item h-${h.O === 1 ? 'true' : 'false'}">
-      <span class="h-out">OUT:${h.O}</span>
-      <span class="h-bits">B[${h.b1}${h.b2}${h.b3}${h.b4}] A:${h.anom} F:${h.force}</span>
-      <span style="margin-left:auto;color:var(--faint);font-size:10px">${h.ts}</span>
+// ─── EXEC LOG ─────────────────────────────────────────────────────────────────
+function logExec(){
+  const{c1,c2,c3,c4,anom,force}=S
+  const O=computeGate(c1,c2,c3,c4,anom,force)
+  const mkey=resolveMode(c1,c2,c3,c4,anom,force,computeScore(c1,c2,c3,c4,anom,force),O,0)
+  const ts=new Date().toTimeString().slice(0,8)
+  execLog.unshift({O,c1,c2,c3,c4,anom,force,ts,mode:MODES[mkey]?.label||mkey})
+  if(execLog.length>50)execLog.pop()
+  const list=document.getElementById('log-list')
+  list.innerHTML=execLog.map(e=>
+    `<div class="log-item l-${e.O===1?'true':'false'}">
+      <span class="l-out">O:${e.O}</span>
+      <span class="l-bits">B[${e.c1}${e.c2}${e.c3}${e.c4}] A:${e.anom} F:${e.force}</span>
+      <span class="l-mode">${e.mode}</span>
+      <span class="l-ts">${e.ts}</span>
     </div>`
   ).join('')
 }
 
-function clearHistory() {
-  history.length = 0
-  document.getElementById('history-list').innerHTML = '<div class="empty-history">— no executions yet —</div>'
+// ─── TIMESTAMP ────────────────────────────────────────────────────────────────
+function tickTs(){
+  document.getElementById('ts').textContent=new Date().toISOString().replace('T',' ').slice(0,19)+' UTC'
 }
+tickTs()
+setInterval(tickTs,1000)
 
-function resetAll() {
-  Object.assign(S, { b1:0, b2:0, b3:0, b4:0, anom:0, force:0 })
-  render()
-  logExecution()
-}
-
-// INIT
+// ─── INIT ─────────────────────────────────────────────────────────────────────
 render()
 </script>
 </body>
