@@ -477,7 +477,7 @@ footer {
       <!-- O-SPACE CANVAS -->
       <div class="card" style="display:flex;flex-direction:column;gap:var(--space-3);">
         <div class="card-title">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><point/><circle cx="12" cy="12" r="3"/></svg>
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
           O-SPACE POSITION
         </div>
         <div class="o-space-wrap">
@@ -838,8 +838,10 @@ const histPoints = Array.from({length:40}).map((_,i) => {
 
 function drawOSpace(r) {
   const canvas = document.getElementById('oSpaceCanvas');
+  if (!canvas) return;
   const dpr = window.devicePixelRatio || 1;
   const size = canvas.offsetWidth;
+  if (size === 0) return;
   canvas.width = size * dpr;
   canvas.height = size * dpr;
   const ctx = canvas.getContext('2d');
@@ -875,18 +877,25 @@ function drawOSpace(r) {
   // Current case
   const cx = r.casePos.x/100*S;
   const cy = r.casePos.y/100*S;
-  const col = r.O_s===1 ? '#38a169' : (r.regularityScore>=40 ? '#d69e2e' : '#e53e3e');
+  const colHex = r.O_s===1 ? '#38a169' : (r.regularityScore>=40 ? '#d69e2e' : '#e53e3e');
+
+  // Parse hex to RGB for proper glow
+  const hexToRgb = (hex) => {
+    const h = hex.replace('#','');
+    return [parseInt(h.substring(0,2),16), parseInt(h.substring(2,4),16), parseInt(h.substring(4,6),16)];
+  };
+  const [cr,cg,cb] = hexToRgb(colHex);
 
   // Glow
   const grad = ctx.createRadialGradient(cx,cy,0,cx,cy,18);
-  grad.addColorStop(0, col.replace(')', ',0.35)').replace('rgb','rgba').replace('#','').length > 8 ? col+'60' : col+'60');
-  grad.addColorStop(1,'transparent');
+  grad.addColorStop(0, `rgba(${cr},${cg},${cb},0.35)`);
+  grad.addColorStop(1, 'transparent');
   ctx.beginPath(); ctx.arc(cx,cy,18,0,2*Math.PI);
-  ctx.fillStyle = col+'33'; ctx.fill();
+  ctx.fillStyle = grad; ctx.fill();
 
   // Dot
   ctx.beginPath(); ctx.arc(cx,cy,6,0,2*Math.PI);
-  ctx.fillStyle = col; ctx.fill();
+  ctx.fillStyle = colHex; ctx.fill();
 
   // Center target
   ctx.beginPath(); ctx.arc(S/2,S/2,3,0,2*Math.PI);
@@ -898,7 +907,7 @@ function drawOSpace(r) {
   // Alignment line
   if (r.O_s !== 1) {
     ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(S/2,S/2);
-    ctx.strokeStyle = col+'60'; ctx.lineWidth = 1; ctx.setLineDash([4,4]); ctx.stroke(); ctx.setLineDash([]);
+    ctx.strokeStyle = `rgba(${cr},${cg},${cb},0.4)`; ctx.lineWidth = 1; ctx.setLineDash([4,4]); ctx.stroke(); ctx.setLineDash([]);
   }
 }
 
@@ -947,6 +956,7 @@ function addTrace(msg, immutable=false) {
   d.className = 'trace-entry ' + (immutable ? 'immutable' : (msg.includes('ANOMALY') || msg.includes('FALSE') ? 'blocked' : ''));
   d.textContent = '[' + new Date().toISOString().slice(11,19) + '] ' + msg;
   el.insertBefore(d, el.firstChild);
+  while (el.childNodes.length > 50) el.removeChild(el.lastChild);
 }
 
 // ── TIMESTAMP ──────────────────────────────────────

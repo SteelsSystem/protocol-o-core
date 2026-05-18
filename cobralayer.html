@@ -1192,9 +1192,6 @@ function rlRender() {
     el.className = 'pipe-step ' + ps[k];
     el.textContent = icons[ps[k]] + ' ' + labels[k];
   });
-  // Fix: pipeFiltrout id
-  const pf = document.getElementById('pipeFiltrout');
-  if (pf) { pf.className = 'pipe-step ' + ps.filtrout; pf.textContent = icons[ps.filtrout] + ' filtrout'; }
 
   // State snap
   document.getElementById('stateSnap').textContent = JSON.stringify({
@@ -1313,6 +1310,7 @@ function addTrace(msg, immutable=false) {
   d.className = 'trace-entry ' + (immutable ? 'immutable' : (msg.includes('ANOMALY') || msg.includes('FALSE') ? 'blocked' : ''));
   d.textContent = '[' + new Date().toISOString().slice(11,19) + '] ' + msg;
   el.insertBefore(d, el.firstChild);
+  while (el.childNodes.length > 50) el.removeChild(el.lastChild);
 }
 
 // ══════════════════════════════════════════════════════════
