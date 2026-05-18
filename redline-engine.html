@@ -61,7 +61,7 @@
 
 /* ── BASE ──────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overflow-x: hidden; max-width: 100vw; }
 body {
   font-family: var(--font-body);
   font-size: var(--text-base);
@@ -70,6 +70,8 @@ body {
   min-height: 100dvh;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 img { display: block; max-width: 100%; }
 button { cursor: pointer; border: none; background: none; font: inherit; color: inherit; }
@@ -385,9 +387,9 @@ footer {
    LEX FORENSICA — FUSION LAYER (additive)
    axial · hex · radial overlay + reduced-motion guard
    ────────────────────────────────────────────────────────────────── */
-.lf-fx { position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0; transition: opacity 700ms cubic-bezier(.16,1,.3,1); }
+.lf-fx { position: fixed; inset: 0; width: 100vw; max-width: 100vw; height: 100vh; max-height: 100vh; overflow: hidden; pointer-events: none; z-index: 0; opacity: 0; transition: opacity 700ms cubic-bezier(.16,1,.3,1); contain: layout paint size; }
 .lf-fx.lf-ready { opacity: 1; }
-.lf-fx svg { width: 100%; height: 100%; display: block; }
+.lf-fx svg { width: 100%; height: 100%; display: block; overflow: hidden; }
 .lf-axial { stroke: rgba(255,255,255,0.025); stroke-width: .5; fill: none; }
 .lf-hex { stroke: rgba(232,69,69,0.06); stroke-width: .6; fill: none; }
 .lf-radial { stroke: rgba(79,152,163,0.07); stroke-width: .4; fill: none; }
