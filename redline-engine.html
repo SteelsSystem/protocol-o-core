@@ -408,6 +408,70 @@ footer {
   font-size: 11px !important;
   letter-spacing: 0.06em;
 }
+
+/* ─── LF A11Y · A++ KONTRAST toggle (compact, safe-area-aware) ──────────── */
+body{padding-bottom:max(56px,env(safe-area-inset-bottom,0px))}
+#lf-a11y-toggle{
+  position:fixed;
+  right:max(12px,env(safe-area-inset-right,0px));
+  bottom:max(12px,env(safe-area-inset-bottom,0px));
+  z-index:9999;
+  display:inline-flex;align-items:center;justify-content:center;
+  white-space:nowrap;line-height:1;
+  font:600 10px/1 'JetBrains Mono','Space Mono',ui-monospace,monospace;
+  letter-spacing:1.5px;text-transform:uppercase;
+  background:rgba(6,10,16,.78);color:#d6dbe8;
+  border:1px solid rgba(0,229,255,.45);border-radius:999px;
+  padding:6px 10px;min-height:28px;cursor:pointer;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  transition:background .2s,color .2s,border-color .2s,box-shadow .2s;
+  box-shadow:0 2px 10px rgba(0,0,0,.45);
+  opacity:.82;
+}
+#lf-a11y-toggle:hover{opacity:1;color:#f6faff;border-color:#6fefff;background:rgba(0,30,42,.92)}
+#lf-a11y-toggle:focus-visible{
+  opacity:1;outline:none;color:#f6faff;border-color:#6fefff;
+  box-shadow:0 0 0 2px rgba(6,10,16,.95),0 0 0 4px #6fefff,0 2px 10px rgba(0,0,0,.45);
+}
+html.lf-hc #lf-a11y-toggle:focus-visible{
+  box-shadow:0 0 0 2px #03070b,0 0 0 4px #ff5e8a,0 2px 10px rgba(0,0,0,.45);
+  border-color:#ff5e8a;
+}
+#lf-a11y-toggle .lf-a11y-on{display:none}
+#lf-a11y-toggle .lf-a11y-off{display:inline}
+html.lf-hc #lf-a11y-toggle .lf-a11y-off{display:none}
+html.lf-hc #lf-a11y-toggle .lf-a11y-on{display:inline}
+@media (max-width:640px){
+  #lf-a11y-toggle{font-size:9px;letter-spacing:1.2px;padding:5px 9px;min-height:26px}
+  body{padding-bottom:max(48px,env(safe-area-inset-bottom,0px))}
+}
+@media print{#lf-a11y-toggle{display:none !important}}
+
+/* ─── HIGH-CONTRAST MODE — opt-in via html.lf-hc ─────────────────────────── */
+html.lf-hc body{color:#f4f6ff !important}
+html.lf-hc .lf-fx,
+html.lf-hc .scanline,
+html.lf-hc .lf-glow,
+html.lf-hc .o-glow,
+html.lf-hc [class*="-glow"]{opacity:.04 !important;filter:none !important}
+html.lf-hc .panel,
+html.lf-hc .card,
+html.lf-hc .box,
+html.lf-hc .surface,
+html.lf-hc [class*="panel"]{
+  background:rgba(4,8,14,.94) !important;
+  border-color:rgba(170,200,230,.55) !important;
+  backdrop-filter:none !important;-webkit-backdrop-filter:none !important;
+  box-shadow:0 0 0 1px rgba(170,200,230,.25) inset !important;
+}
+html.lf-hc h1,html.lf-hc h2,html.lf-hc h3,html.lf-hc h4{color:#fff !important;text-shadow:none !important}
+html.lf-hc p,html.lf-hc li,html.lf-hc span,html.lf-hc td,html.lf-hc th,html.lf-hc label{color:#eef2ff !important}
+html.lf-hc a{color:#9be7ff !important;text-decoration:underline}
+html.lf-hc a:hover,html.lf-hc a:focus-visible{color:#fff !important}
+html.lf-hc button,html.lf-hc input,html.lf-hc select,html.lf-hc textarea{
+  color:#f4f6ff !important;border-color:rgba(170,200,230,.6) !important;
+}
+html.lf-hc *{text-shadow:none !important}
 </style>
 </head>
 <body>
@@ -1013,6 +1077,44 @@ function lfBoot(){
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', lfBoot, { once:true });
 else lfBoot();
+</script>
+
+<script>
+/* LF A11Y toggle — compact, safe-area-aware, persistent (lf-hc) */
+(function(){
+  var KEY='lf-hc';
+  var html=document.documentElement;
+  var stored=null;
+  try{stored=localStorage.getItem(KEY)}catch(_){}
+  if(stored==='1') html.classList.add('lf-hc');
+  function sync(b){
+    var on=html.classList.contains('lf-hc');
+    b.setAttribute('aria-pressed',on?'true':'false');
+  }
+  function mkBtn(){
+    var existing=document.querySelectorAll('#lf-a11y-toggle');
+    for(var i=1;i<existing.length;i++){existing[i].parentNode&&existing[i].parentNode.removeChild(existing[i])}
+    if(existing.length>=1){sync(existing[0]);return}
+    var b=document.createElement('button');
+    b.id='lf-a11y-toggle';
+    b.type='button';
+    b.setAttribute('aria-label','Přepnout vysoký kontrast / Toggle high contrast');
+    b.setAttribute('title','Vysoký kontrast / High contrast (A11Y)');
+    b.innerHTML='<span class="lf-a11y-off" aria-hidden="false">A++ KONTRAST</span><span class="lf-a11y-on" aria-hidden="false">A− NORMÁL</span>';
+    b.addEventListener('click',function(){
+      var on=html.classList.toggle('lf-hc');
+      try{localStorage.setItem(KEY,on?'1':'0')}catch(_){}
+      sync(b);
+    });
+    document.body.appendChild(b);
+    sync(b);
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',mkBtn,{once:true});
+  }else{
+    mkBtn();
+  }
+})();
 </script>
 </body>
 </html>
